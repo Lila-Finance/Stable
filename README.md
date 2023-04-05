@@ -36,6 +36,8 @@ npx hardhat run scripts/deploy.ts
 
 # Deploy
 
+App at https://rapturt9.github.io/Fixed_Yield/
+
 ```shell
 npm run deploy -- -m "Deploy React app to GitHub Pages"
 ```
