@@ -9,6 +9,10 @@ Wait for transactions to execute on your wallet before executing another one. Fr
 
 Since we can't fast forward the Sepolia network, I added days in the past when you are supplying tokens. Then you are minted an NFT that corresponds to the value and interest generated based on the rate and the number of days back.
 
+Use Fund only for testing since that just funds the pools without giving you an NFT, use Supply for getting an NFT receipt that you can redeem with interest.
+
+Current Variable rate is just based off Aave rate and a better formula has to be made.
+
 # Run the react app
 
 ```
