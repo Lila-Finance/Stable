@@ -33,3 +33,9 @@ REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts
 ```
+
+# Deploy
+
+```shell
+npm run deploy -- -m "Deploy React app to GitHub Pages"
+```
