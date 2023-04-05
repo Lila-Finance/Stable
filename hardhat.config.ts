@@ -1,32 +1,37 @@
-import * as dotenv from "dotenv";
+import { HardhatUserConfig } from "hardhat/types";
 
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomiclabs/hardhat-etherscan";
-import "@nomiclabs/hardhat-waffle";
-import "@typechain/hardhat";
-import "hardhat-gas-reporter";
-import "solidity-coverage";
+require("@nomicfoundation/hardhat-toolbox");
+require("@nomiclabs/hardhat-etherscan");
+require("dotenv").config();
 
-dotenv.config();
+const INFURA_API_KEY = process.env.INFURA_API_KEY;
+const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
-  solidity: {
-    version: "0.8.12",
-    settings: {
-      outputSelection: {
-        "*": {
-          "*": ["storageLayout"],
-        },
-      },
+  solidity: "0.8.10",
+  networks: {
+    sepolia: {
+      url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [
+        process.env.SEPOLIA_PRIVATE_KEY as string,
+        process.env.SEPOLIA_PRIVATE_KEY_2 as string,
+      ],
+      gas: 8000000,
+    },
+    goerli: {
+      url: `https://goerli.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [
+        process.env.SEPOLIA_PRIVATE_KEY as string,
+        process.env.SEPOLIA_PRIVATE_KEY_2 as string,
+      ],
     },
   },
-  gasReporter: {
-    enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
-    token: process.env.REPORT_GAS ? "ETH" : undefined,
-    coinmarketcap: process.env.REPORT_GAS
-      ? process.env.COIN_MARKET_CAP
-      : undefined,
+  defaultNetwork: "sepolia",
+  mocha: {
+    timeout: 60000, // 60 seconds
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_API_KEY,
   },
 };
 
