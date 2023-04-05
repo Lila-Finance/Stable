@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Fixed_Yield/static/css/main.da2e0916.css",
+    "main.js": "/Fixed_Yield/static/js/main.2105a4e4.js",
+    "index.html": "/Fixed_Yield/index.html",
+    "main.da2e0916.css.map": "/Fixed_Yield/static/css/main.da2e0916.css.map",
+    "main.2105a4e4.js.map": "/Fixed_Yield/static/js/main.2105a4e4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.da2e0916.css",
+    "static/js/main.2105a4e4.js"
+  ]
+}
