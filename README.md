@@ -2,8 +2,10 @@
 
 This is on the sepolia test network and uses DAI. If you are developing, look at aave-v3 docs at https://docs.aave.com/developers/getting-started/readme.
 
+Connect to Sepolia network: https://www.alchemy.com/overviews/how-to-add-sepolia-to-metamask
+
 Sepolia Faucet: https://sepoliafaucet.com/
-DAI faucet: https://staging.aave.com/faucet/
+Sepolia DAI faucet: https://staging.aave.com/faucet/
 
 Wait for transactions to execute on your wallet before executing another one. Frontend sucks, so you have to reload and connect to refresh the numbers on the page.
 
@@ -16,6 +18,7 @@ Current Variable rate is just based off Aave rate and a better formula has to be
 # Run the react app
 
 ```
+
 npm i
 npm run start
 ```
