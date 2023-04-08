@@ -1,14 +1,25 @@
 import React, { useState } from "react";
 import { ethers } from "ethers";
-import {
-  SupplyFixed,
-  SupplyVariable,
-  NFTData,
-  FixedNFTs,
-  VariableNFTs,
-  FundFixed,
-  FundVariable,
-} from "./Transact";
+import SupplyFixed from "./components/SupplyFixed";
+import SupplyVariable from "./components/SupplyVariable";
+import FixedNFTs from "./components/FixedNFTs";
+import VariableNFTs from "./components/VariableNFTs";
+import FundFixed from "./components/FundFixed";
+import FundVariable from "./components/FundVariable";
+import FixedNFTData from "./components/FixedNFTData";
+import VariableNFTData from "./components/VariableNFTData";
+import NavBar from "./components/NavBar";
+import { Box, Container, Grid, Typography, CssBaseline, createTheme, ThemeProvider } from '@mui/material';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2', // Change this value to your desired blue color
+    },
+  },
+});
 
 function App() {
   const [web3Provider, setWeb3Provider] = useState(null);
@@ -29,18 +40,68 @@ function App() {
   };
 
   return (
-    <div>
-      <button onClick={connectWallet}>Connect to wallet</button>
-      <div>Provider: {web3Provider && web3Provider.provider.chainId}</div>
-      <div>Selected address: {selectedAddress}</div>
-      <NFTData address={selectedAddress} />
-      <SupplyFixed address={selectedAddress} />
-      <SupplyVariable address={selectedAddress} />
-      <FixedNFTs address={selectedAddress} />
-      <VariableNFTs address={selectedAddress} />
-      <FundFixed address={selectedAddress} />
-      <FundVariable address={selectedAddress} />
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <NavBar connectWallet={connectWallet} />
+      <Container>
+        <Box mt={10} mb={10}>
+          <Typography
+            variant="h4"
+            component="div"
+            sx={{
+              fontWeight: 'bold',
+              color: 'primary.main',
+              marginTop: 2,
+              marginBottom: 2,
+            }}
+          >
+            The platform that allows you to choose fixed or variable yields
+          </Typography>
+        </Box>
+        <Grid container spacing={5}>
+          <Grid item xs={12}>
+            <Box marginBottom={2}>
+              <Box display="flex" alignItems="center" marginBottom={1}>
+                <AccountBalanceWalletIcon sx={{ marginRight: 1, color: 'text.secondary' }} />
+                <Typography variant="h6" fontWeight="bold" color="text.secondary">
+                  Provider: {web3Provider && web3Provider.provider.chainId}
+                </Typography>
+              </Box>
+              <Box display="flex" alignItems="center">
+                <AccountCircleIcon sx={{ marginRight: 1, color: 'text.secondary' }} />
+                <Typography variant="h6" fontWeight="bold" color="text.secondary">
+                  User address: {selectedAddress}
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+          <Grid item xs={6}>
+            <FixedNFTData address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <VariableNFTData address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <SupplyFixed address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <SupplyVariable address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <FixedNFTs address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <VariableNFTs address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <FundFixed address={selectedAddress} />
+          </Grid>
+          <Grid item xs={6}>
+            <FundVariable address={selectedAddress} />
+          </Grid>
+        </Grid>
+      </Container>
+    </ThemeProvider>
   );
 }
 
