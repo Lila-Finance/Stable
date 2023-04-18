@@ -26,7 +26,7 @@ function FixedNFTData() {
   }, []);
 
   return (
-    <Card sx={{ backgroundColor: "#c2d9f0" }}>
+    <Card sx={{ backgroundColor: "#e6d7ff" }}>
       <CardContent>
         <Typography variant="h5" fontWeight="bold">Fixed Pool</Typography>
         <Typography variant="body1">

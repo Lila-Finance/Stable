@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import SupplyFixed from "./components/SupplyFixed";
 import SupplyVariable from "./components/SupplyVariable";
@@ -16,7 +16,13 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2', // Change this value to your desired blue color
+      main: '#9c88ff', // #D3BAFB
+    },
+    secondary: {
+      main: '#8c7ae6',
+    },
+    background: {
+      default: '#f8f9fa',
     },
   },
 });
@@ -46,7 +52,7 @@ function App() {
       <Container>
         <Box mt={10} mb={10}>
           <Typography
-            variant="h4"
+            variant="h2"
             component="div"
             sx={{
               fontWeight: 'bold',

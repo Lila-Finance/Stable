@@ -24,7 +24,7 @@ function VariableNFTData() {
   }, []);
 
   return (
-    <Card sx={{ backgroundColor: "#c2d9f0" }}>
+    <Card sx={{ backgroundColor: "#e6d7ff" }}>
     <CardContent>
       <Typography variant="h5" fontWeight="bold">Variable Pool</Typography>
       <Typography variant="body1">
