@@ -61,18 +61,33 @@ function FixedNFTs({ address }) {
     }
   };
 
+  const SampleNFTCard = () => (
+    <Card sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
+      <CardContent>
+        <Typography>Sample Token ID: 12345</Typography>
+        <Typography>Sample Value: 100</Typography>
+        <Typography sx={{ marginBottom: 2 }}>Sample Interest: 10</Typography>
+        <Button className="redeem-button" variant="contained" color="secondary" disabled>
+          Redeem Fixed
+        </Button>
+      </CardContent>
+    </Card>
+  );
+
+
   return (
     <Box>
       <Typography variant="h4" fontWeight="bold">
         My Fixed NFTs
       </Typography>
       {fixedNFTs.map((fixedNFT) => (
-        <Card key={fixedNFT.tokenId} sx={{ mb: 2 }}>
+        <Card key={fixedNFT.tokenId} sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
           <CardContent>
             <Typography>Token ID: {fixedNFT.tokenId}</Typography>
             <Typography>Value: {fixedNFT.value}</Typography>
-            <Typography>Interest: {fixedNFT.interest}</Typography>
+            <Typography sx={{ marginBottom: 2 }}>Interest: {fixedNFT.interest}</Typography>
             <Button
+              className="redeem-button"
               variant="contained"
               color="primary"
               onClick={() => redeemFixed(fixedNFT.tokenId)}
@@ -83,6 +98,7 @@ function FixedNFTs({ address }) {
           </CardContent>
         </Card>
       ))}
+      {fixedNFTs.length === 0 && <SampleNFTCard />}
       {isLoading && (
         <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
           <CircularProgress />

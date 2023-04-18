@@ -51,7 +51,7 @@ function SupplyVariable({ address }) {
           Note: This "Days in the past" box is for testing purposes. It will not appear on the production site.
         </Typography>
       </Box>
-      <Button variant="contained" color="primary" size="large" onClick={supplyVariable}>
+      <Button className="supply-button" fullWidth={true}  variant="contained" color="primary" size="large" onClick={supplyVariable}>
         Supply
       </Button>
     </Box>
