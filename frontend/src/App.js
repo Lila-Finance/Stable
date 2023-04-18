@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import SupplyFixed from "./components/SupplyFixed";
 import SupplyVariable from "./components/SupplyVariable";
@@ -12,6 +12,7 @@ import NavBar from "./components/NavBar";
 import { Box, Container, Grid, Typography, CssBaseline, createTheme, ThemeProvider } from '@mui/material';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import "./App.css";
 
 const theme = createTheme({
   palette: {
@@ -61,7 +62,7 @@ function App() {
               marginBottom: 2,
             }}
           >
-            The platform that allows you to choose fixed or variable yields
+            The platform that allows you to choose <span className="gradient-text">FIXED</span> or <span className="gradient-text">VARIABLE</span> yields
           </Typography>
         </Box>
         <Grid container spacing={5}>
@@ -69,13 +70,13 @@ function App() {
             <Box marginBottom={2}>
               <Box display="flex" alignItems="center" marginBottom={1}>
                 <AccountBalanceWalletIcon sx={{ marginRight: 1, color: 'text.secondary' }} />
-                <Typography variant="h6" fontWeight="bold" color="text.secondary">
+                <Typography variant="h6" color="text.secondary">
                   Provider: {web3Provider && web3Provider.provider.chainId}
                 </Typography>
               </Box>
               <Box display="flex" alignItems="center">
                 <AccountCircleIcon sx={{ marginRight: 1, color: 'text.secondary' }} />
-                <Typography variant="h6" fontWeight="bold" color="text.secondary">
+                <Typography variant="h6" color="text.secondary">
                   User address: {selectedAddress}
                 </Typography>
               </Box>
@@ -99,12 +100,12 @@ function App() {
           <Grid item xs={6}>
             <VariableNFTs address={selectedAddress} />
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <FundFixed address={selectedAddress} />
           </Grid>
           <Grid item xs={6}>
             <FundVariable address={selectedAddress} />
-          </Grid>
+          </Grid> */}
         </Grid>
       </Container>
     </ThemeProvider>

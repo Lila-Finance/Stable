@@ -1,11 +1,12 @@
 import React from "react";
 import { AppBar, Box, Button, Toolbar, Typography, IconButton } from "@mui/material";
 import logo from "../images/logo.png";
+import "../App.css";
 
 function NavBar({ connectWallet }) {
   return (
     <AppBar position="static" sx={{ background: "#f8f9fa" }} elevation={0}> 
-      <Toolbar>
+      <Toolbar sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}>
         <IconButton edge="start" color="inherit" aria-label="logo">
           <img src={logo} alt="Logo" style={{ height: "40px", width: "auto" }} />
         </IconButton>
@@ -19,7 +20,7 @@ function NavBar({ connectWallet }) {
           sx={{
             fontWeight: "bold",
             textAlign: "center",
-            color: "#9c88ff", // Change this value to your desired color
+            color: "#9c88ff",
           }}
         >
           View/Claim Holdings
@@ -28,7 +29,10 @@ function NavBar({ connectWallet }) {
         <Button color="inherit" onClick={() => console.log("Chain functionality")}>
           Chain
         </Button>
-        <Button color="inherit" onClick={connectWallet}>
+        <Button
+          className="connect-button"
+          onClick={connectWallet}
+        >
           Connect
         </Button>
       </Toolbar>
