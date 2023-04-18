@@ -4,6 +4,10 @@
   "homepage": "https://rapturt9.github.io/Fixed_Yield",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.11.16",
     "@web3-react/core": "^6.1.9",
     "bootstrap": "^4.4.1",
     "ethers": "^5.7.2",
