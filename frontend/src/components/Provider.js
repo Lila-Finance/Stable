@@ -6,13 +6,12 @@ import IERC20Abi from "../abi/IERC20.json";
 import addresses from "../addresses/addresses.json";
 
 const {
-    DAI_ADDRESS,
-    AAVE_ADDRESSES_PROVIDER,
-    FIXED_NFT_ADDRESS,
-    VARIABLE_NFT_ADDRESS,
-    AAVE_POOL_SUPPLY_WITH_NFT_ADDRESS,
-  } = addresses;
-
+  DAI_ADDRESS,
+  AAVE_ADDRESSES_PROVIDER,
+  FIXED_NFT_ADDRESS,
+  VARIABLE_NFT_ADDRESS,
+  AAVE_POOL_SUPPLY_WITH_NFT_ADDRESS,
+} = addresses;
 
 const fixedNFTAbi = FixedNFTAbi.abi;
 const variableNFTAbi = VariableNFTAbi.abi;
@@ -47,10 +46,13 @@ const sendParams = {
 
 async function approveSpend(walletAddress, amount) {
   const amountWei = ethers.utils.parseEther(amount);
-  const allowance = await daiContract.allowance(
+  let allowance = await daiContract.allowance(
     walletAddress,
     AAVE_POOL_SUPPLY_WITH_NFT_ADDRESS
   );
+  allowance = ethers.BigNumber.from(allowance);
+  console.log(allowance.lt(amountWei));
+
   if (allowance.lt(amountWei)) {
     const amountWithBuffer = amountWei.mul(110).div(100);
     const tx = await daiContract.approve(
