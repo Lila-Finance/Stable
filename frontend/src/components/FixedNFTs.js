@@ -1,59 +1,64 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { fixedNFTContract, aavePoolSupplyWithNFTContract, sendParams } from "./Provider";
-import { Typography, Box, Button, Card, CardContent, CircularProgress } from "@mui/material";
+import { sendParams } from "./Provider";
+import {
+  Typography,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+} from "@mui/material";
 
-function FixedNFTs({ address }) {
+function FixedNFTs({
+  address,
+  rate,
+  fixedNFTContract,
+  poolContract,
+  refreshKey,
+}) {
   const [fixedNFTs, setFixedNFTs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function getFixedNFTs() {
       try {
-        const filter = fixedNFTContract.filters.Transfer(null, null);
-        const transferEvents = await fixedNFTContract.queryFilter(filter);
+        const nftCount = await fixedNFTContract.balanceOf(address);
+        const myFixedNFTs = [];
 
-        let myFixedNFTs = await Promise.all(
-          transferEvents
-            .filter((event) => event.args.to === address)
-            .map(async (event) => {
-              const tokenId = event.args.tokenId.toNumber();
-              if (tokenId === null) {
-                return null;
-              }
-              try {
-                const owner = await fixedNFTContract.ownerOf(tokenId);
-                if (owner !== address) {
-                  return null;
-                }
-              } catch (err) {
-                return null; // Skip if token does not exist
-              }
-              const rates = await aavePoolSupplyWithNFTContract.calcFixed(
-                tokenId
-              );
-              return {
-                tokenId,
-                value: ethers.utils.formatEther(rates[0]),
-                interest: ethers.utils.formatEther(rates[1]),
-              };
-            })
-        );
-        myFixedNFTs = myFixedNFTs.filter((nft) => nft !== null);
+        for (let i = 0; i < nftCount; i++) {
+          const nftId = await fixedNFTContract.tokenOfOwnerByIndex(address, i);
+          const depositData = await fixedNFTContract.getDepositData(nftId);
+          const nftIdNumber = nftId.toNumber();
+
+          // Calculate the interest using BigNumber multiplication
+          const time = await poolContract.timeSinceStart();
+          const interest = await poolContract.calculateInterest(
+            depositData["amount"],
+            rate,
+            time
+          );
+          myFixedNFTs.push({
+            tokenId: nftIdNumber,
+            value: ethers.utils.formatEther(depositData["amount"]),
+            interest: ethers.utils.formatEther(interest),
+          });
+        }
 
         setFixedNFTs(myFixedNFTs);
       } catch (err) {
         console.error(err);
       }
     }
-
-    getFixedNFTs();
-  }, [address]);
+    if (address && fixedNFTContract) {
+      getFixedNFTs();
+    }
+  }, [address, fixedNFTContract, poolContract, rate, refreshKey]);
 
   const redeemFixed = async (tokenId) => {
     try {
       setIsLoading(true);
-      await aavePoolSupplyWithNFTContract.redeemFixed(tokenId, sendParams);
+      await poolContract.withdrawFixed(tokenId, sendParams);
     } catch (err) {
       console.error(err);
     } finally {
@@ -67,13 +72,17 @@ function FixedNFTs({ address }) {
         <Typography>Sample Token ID: 12345</Typography>
         <Typography>Sample Value: 100</Typography>
         <Typography sx={{ marginBottom: 2 }}>Sample Interest: 10</Typography>
-        <Button className="redeem-button" variant="contained" color="secondary" disabled>
+        <Button
+          className="redeem-button"
+          variant="contained"
+          color="secondary"
+          disabled
+        >
           Redeem Fixed
         </Button>
       </CardContent>
     </Card>
   );
-
 
   return (
     <Box>
@@ -81,11 +90,16 @@ function FixedNFTs({ address }) {
         My Fixed NFTs
       </Typography>
       {fixedNFTs.map((fixedNFT) => (
-        <Card key={fixedNFT.tokenId} sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
+        <Card
+          key={fixedNFT.tokenId}
+          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
+        >
           <CardContent>
             <Typography>Token ID: {fixedNFT.tokenId}</Typography>
             <Typography>Value: {fixedNFT.value}</Typography>
-            <Typography sx={{ marginBottom: 2 }}>Interest: {fixedNFT.interest}</Typography>
+            <Typography sx={{ marginBottom: 2 }}>
+              Interest: {fixedNFT.interest}
+            </Typography>
             <Button
               className="redeem-button"
               variant="contained"
@@ -106,7 +120,6 @@ function FixedNFTs({ address }) {
       )}
     </Box>
   );
-  
 }
 
 export default FixedNFTs;

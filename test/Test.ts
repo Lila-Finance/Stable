@@ -1,96 +1,148 @@
-import { Contract, Signer } from "ethers";
 import { expect } from "chai";
+//@ts-ignore
 import { ethers } from "hardhat";
-import { IERC20 } from "../typechain-types/@openzeppelin/contracts/token/ERC20/IERC20";
+import { Contract, ContractFactory, BigNumber } from "ethers";
 
-const DAI_ADDRESS = "0x68194a729C2450ad26072b3D33ADaCbcef39D574";
-const AAVE_ADDRESSES_PROVIDER = "0x0496275d34753A48320CA58103d5220d394FF77F";
+const poolLimit = ethers.utils.parseEther("500");
+const lockDuration = 365 * 24 * 60 * 5; // 1 month
+const dailyInterestRates = [ethers.utils.parseEther("11")];
+const fixedInterestRate = ethers.utils.parseEther("10");
+let variablePoolLimit: ethers.BigNumber = null;
 
-describe("AavePoolSupplyWithNFT", function () {
-  let owner: Signer;
-  let addr1: Signer;
-  let dai: IERC20;
-  let fixednft: Contract;
-  let variablenft: Contract;
-  let aavePoolSupplyWithNFT: Contract;
+describe("Fixed Interest Pool", () => {
+  let Token: ContractFactory;
+  let FixedNFT: ContractFactory;
+  let VariableNFT: ContractFactory;
+  let PoolDeployer: ContractFactory;
+  let Pool: ContractFactory;
+  let token: Contract;
+  let fixedNFT: Contract;
+  let variableNFT: Contract;
+  let poolDeployer: Contract;
+  let pool: Contract;
+  let owner: any;
+  let addr1: any;
+  let addr2: any;
+  let addrs: any;
 
-  beforeEach(async function () {
-    [owner, addr1] = await ethers.getSigners();
-    fixednft = await (
-      await ethers.getContractFactory("FixedNFT")
-    ).deploy("FixedNFT", "FNFT");
-    await fixednft.deployed();
+  beforeEach(async () => {
+    Token = await ethers.getContractFactory("Token");
+    FixedNFT = await ethers.getContractFactory("FixedNFT");
+    VariableNFT = await ethers.getContractFactory("VariableNFT");
+    Pool = await ethers.getContractFactory("Pool");
+    PoolDeployer = await ethers.getContractFactory("PoolDeployer"); // Add this line
+    [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
-    variablenft = await (
-      await ethers.getContractFactory("VariableNFT")
-    ).deploy("VariableNFT", "VNFT");
-    await variablenft.deployed();
+    token = await Token.deploy();
+    await token.deployed();
 
-    aavePoolSupplyWithNFT = await (
-      await ethers.getContractFactory("AavePoolSupplyWithNFT")
-    ).deploy(
-      AAVE_ADDRESSES_PROVIDER,
-      DAI_ADDRESS,
-      fixednft.address,
-      variablenft.address
+    // Deploy PoolDeployer
+    poolDeployer = await PoolDeployer.deploy();
+    await poolDeployer.deployed();
+
+    // Use createPool function from PoolDeployer
+    await poolDeployer.createPool(
+      token.address,
+      poolLimit,
+      lockDuration,
+      fixedInterestRate,
+      dailyInterestRates
     );
-    await aavePoolSupplyWithNFT.deployed();
 
-    dai = await ethers.getContractAt("IERC20", DAI_ADDRESS);
-    await dai
-      .connect(owner)
-      .approve(aavePoolSupplyWithNFT.address, ethers.constants.MaxUint256);
+    // Get the last PoolInfo element
+    const poolInfoIndex = (await poolDeployer.getPoolLength()) - 1;
+    const poolInfo = await poolDeployer.pools(poolInfoIndex);
 
-    const startTx = await aavePoolSupplyWithNFT
-      .connect(owner)
-      .start(ethers.utils.parseEther("10"));
+    pool = Pool.attach(poolInfo);
+    fixedNFT = FixedNFT.attach(await pool.fixedNFT());
+    variableNFT = VariableNFT.attach(await pool.variableNFT());
 
-    // Wait for the transaction to be mined
-    await startTx.wait();
+    variablePoolLimit = await pool.calculateInterest(
+      poolLimit,
+      fixedInterestRate,
+      lockDuration
+    );
   });
 
-  it("should redeem the DAI from the Aave pool and burn the Sepolia NFT", async function () {
-    // Define amount and referral code
-    const amount = ethers.utils.parseEther("5");
+  it("Should mint tokens from faucet", async () => {
+    const faucetMintAmount = ethers.utils.parseEther("200");
+    await token.connect(addr1).mintFromFaucet(faucetMintAmount);
+    expect(await token.balanceOf(addr1.address)).to.equal(faucetMintAmount);
+  });
 
-    // Supply DAI to the pool, approve max amount
+  it("Should deposit tokens to FixedPool and mint FixedNFT", async () => {
+    const depositAmount = ethers.utils.parseEther("200");
+    await token.connect(addr1).mintFromFaucet(depositAmount);
+    await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(depositAmount);
 
-    console.log("Supplying DAI to the pool, ", amount.toString());
-    const supplyTx = await aavePoolSupplyWithNFT
-      .connect(owner)
-      .supplyFixed(amount, 0, 365);
+    expect(await fixedNFT.balanceOf(addr1.address)).to.equal(1);
+  });
 
-    // Wait for the transaction to be mined
-    await supplyTx.wait();
+  it("Should not allow withdrawal before lock duration", async () => {
+    const depositAmount = poolLimit + variablePoolLimit;
+    await token.connect(addr1).mintFromFaucet(depositAmount);
+    await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(poolLimit);
+    await pool.connect(addr1).depositVariable(variablePoolLimit);
 
-    // Get the token ID of the minted NFT
-    const tokenId = (await fixednft.totalSupply()) - 1;
+    //const variableAmount = ethers.utils.parseEther("100");
 
-    const [fixedInterest, variableInterest] =
-      await aavePoolSupplyWithNFT.interests();
-    console.log(`Fixed Interest: ${fixedInterest}`);
-    console.log(`Variable Interest: ${variableInterest}`);
-
-    const variableSupply = await aavePoolSupplyWithNFT.variableSupply();
-    console.log(`Variable Supply: ${variableSupply}`);
-
-    const fixedSupply = await aavePoolSupplyWithNFT.fixedSupply();
-    console.log(`Fixed Supply: ${fixedSupply}`);
-
-    const [fix_amount, interest] = await aavePoolSupplyWithNFT.calcFixed(
-      tokenId
+    await expect(pool.connect(addr1).withdrawFixed(0)).to.be.rejectedWith(
+      "Tokens are still locked"
     );
-    console.log(`Fixed NFT Amount: ${fix_amount}`);
-    console.log(`Fixed NFT Interest: ${interest}`);
+  });
 
-    /*// Redeem DAI from the pool
-    const redeemTx = await aavePoolSupplyWithNFT.connect(owner).redeem(tokenId);
+  it("Should allow withdrawal after lock duration", async () => {
+    const depositAmount = poolLimit + variablePoolLimit;
+    await token.connect(addr1).mintFromFaucet(depositAmount);
+    await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(poolLimit);
+    await pool.connect(addr1).depositVariable(variablePoolLimit);
 
-    // Wait for the transaction to be mined
-    await redeemTx.wait();
+    // Fast forward time to simulate lock duration
+    await pool.connect(owner).fastForward(lockDuration);
 
-    // Get the final DAI balance of the owner
-    const finalBalance = await dai.balanceOf(await owner.getAddress());
-    console.log("Final DAI balance: ", finalBalance.toString());*/
+    const balanceBeforeWithdraw = await token.balanceOf(addr1.address);
+    await pool.connect(addr1).withdrawFixed(0);
+    await pool.connect(addr1).withdrawVariable(0);
+    const balanceAfterWithdraw = await token.balanceOf(addr1.address);
+
+    expect(balanceAfterWithdraw.gt(balanceBeforeWithdraw)).to.be.true;
+    expect(await fixedNFT.balanceOf(addr1.address)).to.equal(0);
+  });
+
+  it("prints fixed and variable interest rates after 2 days", async function () {
+    const initialInterestRates = await pool.interests();
+    console.log(
+      "Initial fixed interest rate:",
+      ethers.utils.formatUnits(initialInterestRates[0], 16),
+      "%"
+    );
+    console.log(
+      "Initial variable interest rate:",
+      ethers.utils.formatUnits(initialInterestRates[1], 16),
+      "%"
+    );
+
+    const depositAmount = poolLimit + variablePoolLimit;
+    await token.connect(addr1).mintFromFaucet(depositAmount);
+    await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(poolLimit);
+    await pool.connect(addr1).depositVariable(variablePoolLimit);
+    const days = 6;
+    await pool.fastForward(Math.round(days * 24 * 60 * 60));
+
+    const interestRatesAfter2Days = await pool.interests();
+    console.log(
+      `Fixed interest rate after ${days} days:`,
+      ethers.utils.formatUnits(interestRatesAfter2Days[0], 16),
+      "%"
+    );
+    console.log(
+      `Variable interest rate after ${days} days:`,
+      ethers.utils.formatUnits(interestRatesAfter2Days[1], 16),
+      "%"
+    );
   });
 });

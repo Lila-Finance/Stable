@@ -1,56 +1,67 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { variableNFTContract, aavePoolSupplyWithNFTContract, sendParams } from "./Provider";
-import { Typography, Box, Button, Card, CardContent, CircularProgress } from "@mui/material";
+import { sendParams } from "./Provider";
+import {
+  Typography,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CircularProgress,
+} from "@mui/material";
 
-function VariableNFTs({ address }) {
+function VariableNFTs({
+  address,
+  rate,
+  poolContract,
+  variableNFTContract,
+  refreshKey,
+}) {
   const [variableNFTs, setVariableNFTs] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function getVariableNFTs() {
       try {
-        const filter = variableNFTContract.filters.Transfer(null, null);
-        const transferEvents = await variableNFTContract.queryFilter(filter);
+        const nftCount = await variableNFTContract.balanceOf(address);
+        const myVariableNFTs = [];
 
-        let myVariableNFTs = await Promise.all(
-          transferEvents
-            .filter((event) => event.args.to === address)
-            .map(async (event) => {
-              const tokenId = event.args.tokenId.toNumber();
-              try {
-                const owner = await variableNFTContract.ownerOf(tokenId);
-                if (owner !== address) {
-                  return null;
-                }
-              } catch (err) {
-                return null; // Skip if token does not exist
-              }
-              let rates = await aavePoolSupplyWithNFTContract.calcVariable(
-                tokenId
-              );
-              return {
-                tokenId: tokenId,
-                value: ethers.utils.formatEther(rates[0]),
-                interest: ethers.utils.formatEther(rates[1]),
-              };
-            })
-        );
-        myVariableNFTs = myVariableNFTs.filter((nft) => nft !== null);
+        for (let i = 0; i < nftCount; i++) {
+          const nftId = await variableNFTContract.tokenOfOwnerByIndex(
+            address,
+            i
+          );
+          const depositData = await variableNFTContract.getDepositData(nftId);
+          const nftIdNumber = nftId.toNumber();
+
+          // Calculate the interest using BigNumber multiplication
+          const time = await poolContract.timeSinceStart();
+          const interest = await poolContract.calculateInterest(
+            depositData["amount"],
+            rate,
+            time
+          );
+          myVariableNFTs.push({
+            tokenId: nftIdNumber,
+            value: ethers.utils.formatEther(depositData["amount"]),
+            interest: ethers.utils.formatEther(interest),
+          });
+        }
 
         setVariableNFTs(myVariableNFTs);
       } catch (err) {
         console.error(err);
       }
     }
-
-    getVariableNFTs();
-  }, [address]);
+    if (address && variableNFTContract) {
+      getVariableNFTs();
+    }
+  }, [address, variableNFTContract, poolContract, rate, refreshKey]);
 
   const redeemVariable = async (tokenId) => {
     try {
       setIsLoading(true);
-      await aavePoolSupplyWithNFTContract.redeemVariable(tokenId, sendParams);
+      await poolContract.withdrawVariable(tokenId, sendParams);
     } catch (err) {
       console.error(err);
     } finally {
@@ -64,7 +75,12 @@ function VariableNFTs({ address }) {
         <Typography>Sample Token ID: 12345</Typography>
         <Typography>Sample Value: 100</Typography>
         <Typography sx={{ marginBottom: 2 }}>Sample Interest: 10</Typography>
-        <Button className="redeem-button" variant="contained" color="secondary" disabled>
+        <Button
+          className="redeem-button"
+          variant="contained"
+          color="secondary"
+          disabled
+        >
           Redeem Fixed
         </Button>
       </CardContent>
@@ -73,13 +89,20 @@ function VariableNFTs({ address }) {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold">My Variable NFTs</Typography>
+      <Typography variant="h4" fontWeight="bold">
+        My Variable NFTs
+      </Typography>
       {variableNFTs.map((variableNFT) => (
-        <Card key={variableNFT.tokenId} sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
+        <Card
+          key={variableNFT.tokenId}
+          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
+        >
           <CardContent>
             <Typography>Token ID: {variableNFT.tokenId}</Typography>
             <Typography>Value: {variableNFT.value}</Typography>
-            <Typography sx={{ marginBottom: 2 }}>Interest: {variableNFT.interest}</Typography>
+            <Typography sx={{ marginBottom: 2 }}>
+              Estimated Interest: {variableNFT.interest}
+            </Typography>
             <Button
               className="redeem-button"
               variant="contained"
@@ -98,7 +121,7 @@ function VariableNFTs({ address }) {
         </Box>
       )}
     </Box>
-  );  
+  );
 }
 
 export default VariableNFTs;

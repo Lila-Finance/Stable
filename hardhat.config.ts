@@ -8,7 +8,15 @@ const INFURA_API_KEY = process.env.INFURA_API_KEY;
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY;
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.10",
+  solidity: {
+    version: "0.8.10",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200, // Adjust the number of runs to balance deployment cost vs. transaction cost
+      },
+    },
+  },
   networks: {
     sepolia: {
       url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
@@ -26,7 +34,7 @@ const config: HardhatUserConfig = {
       ],
     },
   },
-  defaultNetwork: "sepolia",
+  defaultNetwork: "hardhat",
   mocha: {
     timeout: 60000, // 60 seconds
   },
