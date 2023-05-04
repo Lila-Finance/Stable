@@ -29,18 +29,19 @@ const FastForward = ({ poolContract }) => {
   };
 
   return (
-    <div>
+    <div style={{ display: "flex", alignItems: "center" }}>
       <TextField
         label="Time to fast forward (days)"
         value={daysToFastForward}
         onChange={(e) => setDaysToFastForward(e.target.value)}
         fullWidth
+        style={{ marginRight: "8px" }}
       />
       <Button onClick={fastForward} variant="contained">
         Fast Forward
       </Button>
     </div>
-  );
+  );  
 };
 
 export default FastForward;

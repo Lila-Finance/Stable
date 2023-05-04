@@ -4,7 +4,7 @@ import FixedNFTs from "./components/FixedNFTs";
 import SupplyFixed from "./components/SupplyFixed";
 import FixedNFTData from "./components/FixedNFTData";
 import Faucet from "./components/Faucet";
-import { poolDeployerContract, tokenContract } from "./components/Provider";
+import { poolDeployerContract } from "./components/Provider";
 import SupplyVariable from "./components/SupplyVariable";
 import VariableNFTs from "./components/VariableNFTs";
 import VariableNFTData from "./components/VariableNFTData";
@@ -12,6 +12,7 @@ import NavBar from "./components/NavBar";
 import CreatePool from "./components/CreatePool";
 import DeletePool from "./components/DeletePool";
 import FastForward from "./components/FastForward";
+import PoolManagement from "./components/PoolManagement"
 import {
   Box,
   Button,
@@ -70,6 +71,7 @@ function App() {
   const [numPools, setNumPools] = useState(0);
   const [poolNum, setPoolNum] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [developerMode, setDeveloperMode] = useState(false);
 
   const handleRefresh = () => {
     setRefreshKey((prevKey) => prevKey + 1);
@@ -186,8 +188,7 @@ function App() {
           </li>
         </ul>
       </Box>
-      <NavBar connectWallet={connectWallet} />
-      <CreatePool />
+      <NavBar connectWallet={connectWallet} onDeveloperModeChange={setDeveloperMode}/>
       <Container>
         <Box mt={10} mb={6}>
           <Typography
@@ -218,71 +219,21 @@ function App() {
               User address: {selectedAddress}
             </Typography>
           </Box>
-          <Faucet address={selectedAddress} />
         </Box>
+        {developerMode && <CreatePool />}
+        {developerMode && <Faucet address={selectedAddress} />}
         {poolContract ? (
-          <Grid container spacing={5} sx={{ marginBottom: "200px" }}>
-            <Grid item xs={12}>
-              <Box marginBottom={7}>
-                <Box display="flex" alignItems="center">
-                  <AccountCircleIcon sx={{ marginRight: 1 }} />
-                  <Typography variant="h6">
-                    timeSinceStart: {timeSinceStart}, lockDuration:{" "}
-                    {lockDuration}
-                  </Typography>
-                </Box>
-                <Box display="flex" alignItems="center">
-                  <AccountCircleIcon sx={{ marginRight: 1 }} />
-                  <Typography variant="h6">
-                    Import Token Contract: {tokenContract.address}
-                  </Typography>
-                </Box>
-              </Box>
-            </Grid>
-            <DeletePool poolContract={poolContract} />
-            <FastForward poolContract={poolContract} />
-            {numPools > 0 && (
-              <Box
-                sx={{
-                  backgroundColor: "secondary.light",
-                  borderRadius: 1,
-                  padding: 2,
-                }}
-              >
-                <Typography variant="body1" component="div">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={async () => {
-                      setPoolNum(poolNum - 1);
-                    }}
-                  >
-                    Prev Pool
-                  </Button>
-                </Typography>
-                <Typography variant="body1" component="div">
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={async () => {
-                      setPoolNum(poolNum + 1);
-                    }}
-                  >
-                    Next Pool
-                  </Button>
-                </Typography>
-              </Box>
-            )}
-            <Button
-              className="refresh-button"
-              fullWidth={true}
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={handleRefresh}
-            >
-              Refresh Contracts
-            </Button>
+          <div>
+            {developerMode &&
+            <PoolManagement 
+              poolContract={poolContract} 
+              timeSinceStart={timeSinceStart}
+              lockDuration={lockDuration}
+              numPools={numPools}
+              setPoolNum={setPoolNum}
+              poolNum={poolNum}
+              handleRefresh={handleRefresh}
+            />}
             <Grid container spacing={5}>
               <Grid item xs={6}>
                 <Card
@@ -341,7 +292,7 @@ function App() {
                 </Card>
               </Grid>
             </Grid>
-          </Grid>
+          </div>
         ) : (
           <Container>
             <Box mt={10} mb={6}>

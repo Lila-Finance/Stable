@@ -16,14 +16,14 @@ function DeletePool({ poolContract }) {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
+      {/* <Typography variant="h4" fontWeight="bold" mb={3}>
         Delete Pool
-      </Typography>
+      </Typography> */}
       <Button
         className="delete-pool-button"
         fullWidth={true}
         variant="contained"
-        color="secondary"
+        color="primary"
         size="large"
         onClick={deletePool}
       >
