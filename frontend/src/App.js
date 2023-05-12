@@ -12,7 +12,7 @@ import NavBar from "./components/NavBar";
 import CreatePool from "./components/CreatePool";
 import DeletePool from "./components/DeletePool";
 import FastForward from "./components/FastForward";
-import PoolManagement from "./components/PoolManagement"
+import PoolManagement from "./components/PoolManagement";
 import {
   Box,
   Button,
@@ -32,6 +32,7 @@ import "./App.css";
 import FixedNFTAbi from "./abi/FixedNFT.json";
 import VariableNFTAbi from "./abi/VariableNFT.json";
 import PoolAbi from "./abi/Pool.json";
+import { useAccount } from "wagmi";
 
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
@@ -59,8 +60,6 @@ const VariableNFT = await ethers.getContractFactory("VariableNFT");
 const Pool = await ethers.getContractFactory("Pool");*/
 
 function App() {
-  const [web3Provider, setWeb3Provider] = useState(null);
-  const [selectedAddress, setSelectedAddress] = useState(null);
   const [fixedRate, setFixedRate] = useState(ethers.BigNumber.from("0"));
   const [variableRate, setVariableRate] = useState(ethers.BigNumber.from("0"));
   const [timeSinceStart, setTimeSinceStart] = useState(0);
@@ -72,35 +71,13 @@ function App() {
   const [poolNum, setPoolNum] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
   const [developerMode, setDeveloperMode] = useState(false);
+  const { address, isConnecting, isDisconnected } = useAccount();
 
   const handleRefresh = () => {
     setRefreshKey((prevKey) => prevKey + 1);
   };
 
-  const connectWallet = async () => {
-    try {
-      if (window.ethereum) {
-        // Request user to connect their MetaMask wallet
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-
-        // Set the selected address to the currently active account
-        const selectedAccount = accounts[0];
-        setSelectedAddress(selectedAccount);
-
-        // Create a Web3Provider instance and set it to the state
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        setWeb3Provider(provider);
-      } else {
-        alert("Please install MetaMask!");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  //effect when selectedAddress changes
+  //effect when address changes
   useEffect(() => {
     async function setPool() {
       const numPools = (await poolDeployerContract.getPoolLength()).toNumber();
@@ -124,8 +101,10 @@ function App() {
       }
       //const pools = await poolDeployerContract.getPools();
     }
-    setPool();
-  }, [poolNum]);
+    if (address) {
+      setPool();
+    }
+  }, [poolNum, address]);
 
   useEffect(() => {
     async function setRate() {
@@ -188,7 +167,7 @@ function App() {
           </li>
         </ul>
       </Box>
-      <NavBar connectWallet={connectWallet} onDeveloperModeChange={setDeveloperMode}/>
+      <NavBar onDeveloperModeChange={setDeveloperMode} />
       <Container>
         <Box mt={10} mb={6}>
           <Typography
@@ -206,34 +185,21 @@ function App() {
             <span className="gradient-text">VARIABLE</span> yields
           </Typography>
         </Box>
-        <Box mb={6}>
-          <Box display="flex" alignItems="center" marginBottom={1}>
-            <AccountBalanceWalletIcon sx={{ marginRight: 1 }} />
-            <Typography variant="h6">
-              Provider: {web3Provider && web3Provider.provider.chainId}
-            </Typography>
-          </Box>
-          <Box display="flex" alignItems="center">
-            <AccountCircleIcon sx={{ marginRight: 1 }} />
-            <Typography variant="h6">
-              User address: {selectedAddress}
-            </Typography>
-          </Box>
-        </Box>
         {developerMode && <CreatePool />}
-        {developerMode && <Faucet address={selectedAddress} />}
+        {developerMode && <Faucet address={address} />}
         {poolContract ? (
           <div>
-            {developerMode &&
-            <PoolManagement 
-              poolContract={poolContract} 
-              timeSinceStart={timeSinceStart}
-              lockDuration={lockDuration}
-              numPools={numPools}
-              setPoolNum={setPoolNum}
-              poolNum={poolNum}
-              handleRefresh={handleRefresh}
-            />}
+            {developerMode && (
+              <PoolManagement
+                poolContract={poolContract}
+                timeSinceStart={timeSinceStart}
+                lockDuration={lockDuration}
+                numPools={numPools}
+                setPoolNum={setPoolNum}
+                poolNum={poolNum}
+                handleRefresh={handleRefresh}
+              />
+            )}
             <Grid container spacing={5}>
               <Grid item xs={6}>
                 <Card
@@ -249,12 +215,12 @@ function App() {
                     </Box>
                     <Box marginBottom={5}>
                       <SupplyFixed
-                        address={selectedAddress}
+                        address={address}
                         poolContract={poolContract}
                       />
                     </Box>
                     <FixedNFTs
-                      address={selectedAddress}
+                      address={address}
                       rate={fixedRate}
                       fixedNFTContract={fixedNFTContract}
                       poolContract={poolContract}
@@ -277,12 +243,12 @@ function App() {
                     </Box>
                     <Box marginBottom={5}>
                       <SupplyVariable
-                        address={selectedAddress}
+                        address={address}
                         poolContract={poolContract}
                       />
                     </Box>
                     <VariableNFTs
-                      address={selectedAddress}
+                      address={address}
                       rate={variableRate}
                       variableNFTContract={variableNFTContract}
                       poolContract={poolContract}

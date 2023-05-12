@@ -11,8 +11,9 @@ import {
 } from "@mui/material";
 import logo from "../images/logo.png";
 import "../App.css";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
-function NavBar({ connectWallet, onDeveloperModeChange}) {
+function NavBar({ onDeveloperModeChange }) {
   const [developerMode, setDeveloperMode] = useState(false);
 
   const handleDeveloperModeChange = (event) => {
@@ -21,10 +22,16 @@ function NavBar({ connectWallet, onDeveloperModeChange}) {
   };
 
   return (
-    <AppBar position="static" sx={{ background: "#f8f9fa" }} elevation={0}> 
-      <Toolbar sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}>
+    <AppBar position="static" sx={{ background: "#f8f9fa" }} elevation={0}>
+      <Toolbar
+        sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}
+      >
         <IconButton edge="start" color="inherit" aria-label="logo">
-          <img src={logo} alt="Logo" style={{ height: "40px", width: "auto" }} />
+          <img
+            src={logo}
+            alt="Logo"
+            style={{ height: "40px", width: "auto" }}
+          />
         </IconButton>
         <Button color="inherit" href="">
           Documentation
@@ -52,15 +59,7 @@ function NavBar({ connectWallet, onDeveloperModeChange}) {
           }
           label="Developer Mode"
         />
-        <Button color="inherit" onClick={() => console.log("Chain functionality")}>
-          Chain
-        </Button>
-        <Button
-          className="connect-button"
-          onClick={connectWallet}
-        >
-          Connect
-        </Button>
+        <ConnectButton />
       </Toolbar>
     </AppBar>
   );

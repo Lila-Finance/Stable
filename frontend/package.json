@@ -8,11 +8,13 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.11.16",
+    "@rainbow-me/rainbowkit": "^0.12.12",
     "@web3-react/core": "^6.1.9",
     "bootstrap": "^4.4.1",
     "ethers": "^5.7.2",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "wagmi": "^0.12.12"
   },
   "devDependencies": {
     "gh-pages": "^5.0.0",
