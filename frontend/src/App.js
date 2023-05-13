@@ -272,7 +272,7 @@ function App() {
                   marginBottom: 2,
                 }}
               >
-                No Pools Deployed
+                Please Connect Wallet
               </Typography>
             </Box>
           </Container>
