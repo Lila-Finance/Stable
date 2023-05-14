@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./FixedNFT.sol";
 import "./VariableNFT.sol";
+import "hardhat/console.sol";
 
 contract Pool is Ownable {
     Token public token;
@@ -18,8 +19,15 @@ contract Pool is Ownable {
     uint256 public interestRate;
     uint256 public totalDepositedFixed;
     uint256 public totalDepositedVariable;
+    uint256 public totalClaimedFixedPrev;
+    uint256 public totalClaimedFixed;
+    uint256 public totalClaimedVariable;
+    uint256 public fixedDepositSumTime;
+    uint256 public fixedDepositNum;
     uint256 public poolStartTime;
     uint256[] public dailyInterestRates;
+    uint256 public prevMaxSupply;
+    uint256 public addTimestamp;
 
     constructor(
         Token _token,
@@ -40,26 +48,23 @@ contract Pool is Ownable {
         variableNFT = new VariableNFT(address(this));
     }
 
-
-    function getIsLocked() external view returns (bool) {
-        return block.timestamp > poolStartTime;
-    }
-
     function depositFixed(uint256 amount) external {
         require(totalDepositedFixed + amount <= fixedPoolLimit, "Pool limit reached");
 
         // Transfer tokens from the user to the Pool contract
         token.transferFrom(msg.sender, address(this), amount);
 
+        uint256 curTime = blocktime();
+
         // Mint the NFT representing the deposit position
-        uint256 tokenId = fixedNFT.mint(msg.sender, amount, block.timestamp);
+        uint256 tokenId = fixedNFT.mint(msg.sender, amount, curTime);
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedFixed += amount;
 
-        if (totalDepositedVariable == variablePoolLimit && totalDepositedFixed == fixedPoolLimit && poolStartTime == 0)  {
-            poolStartTime = block.timestamp;
-        }
+        fixedDepositNum += 1;
+        fixedDepositSumTime += curTime;
+        startPool();
     }
 
     function depositVariable(uint256 amount) external {
@@ -69,56 +74,23 @@ contract Pool is Ownable {
         token.transferFrom(msg.sender, address(this), amount);
 
         // Mint the NFT representing the deposit position
-        uint256 tokenId = variableNFT.mint(msg.sender, amount, block.timestamp);
+        uint256 tokenId = variableNFT.mint(msg.sender, amount, blocktime());
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedVariable += amount;
+        startPool();
+    }
+
+    function startPool() internal {
+        //print out totalDepositedFixed, totalDepositedVariable, and poolStartTime
         if (totalDepositedVariable == variablePoolLimit && totalDepositedFixed == fixedPoolLimit && poolStartTime == 0) {
-            poolStartTime = block.timestamp;
+            poolStartTime = blocktime();
+            prevMaxSupply = getTotalSupply() + totalClaimedFixedPrev;
         }
     }
 
-
-    function withdrawFixed(uint256 tokenId) external {
-        require(poolStartTime > 0, "Pool not locked yet");
-        require(block.timestamp >= poolStartTime + lockDuration, "Tokens are still locked");
-
-        FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
-        require(fixedNFT.ownerOf(tokenId) == msg.sender, "Caller is not the owner of the NFT");
-
-        // Burn the NFT representing the deposit position
-        fixedNFT.burn(tokenId);
-
-        // Calculate the interest and total amount to be returned to the user
-        uint256 interest = calculateInterest(depositData.amount, interestRate, lockDuration);
-        uint256 totalAmount = depositData.amount + interest;
-
-        // Transfer the tokens back to the user
-        //token.mintFromFaucet(interest); //comment later
-        token.transfer(msg.sender, totalAmount);
-    }
-
-    function withdrawVariable(uint256 tokenId) external {
-        require(poolStartTime > 0, "Pool not locked yet");
-        require(block.timestamp >= poolStartTime + lockDuration, "Tokens are still locked");
-
-        VariableNFT.DepositData memory depositData = variableNFT.getDepositData(tokenId);
-        require(variableNFT.ownerOf(tokenId) == msg.sender, "Caller is not the owner of the NFT");
-
-        // Burn the NFT representing the deposit position
-        variableNFT.burn(tokenId);
-
-        // Calculate the interest and total amount to be returned to the user
-        uint256 totalValue = getTotalSupply() - fixedPoolLimit;
-        uint256 totalAmount = (depositData.amount * totalValue) / variablePoolLimit;
-
-        // Transfer the tokens back to the user
-        token.mintFromFaucet(totalAmount);
-        token.transfer(msg.sender, totalAmount);
-    }
-
-    function getTotalSupply() public view returns (uint256) {
-        uint256 totalSupply = fixedPoolLimit;
+    function getTotalSupply() public view returns (uint256) { //don't use for aave
+        uint256 totalSupply = totalDepositedFixed * 5 / 4 - totalClaimedFixedPrev;
         if (poolStartTime > 0){ //pool started
             uint256 time = timeSinceStart();
             //get length of dailyInterestRates and set to variable
@@ -134,21 +106,84 @@ contract Pool is Ownable {
             interest = calculateInterest(totalSupply, dailyInterestRates[numDays % length], remainder);
             totalSupply += interest;
         }
-        return totalSupply;
+        return totalSupply - totalClaimedVariable;
     }
 
     function interests() public view returns (int256, int256) {
         int256 variableInterestRate = int256(interestRate);
-        if (poolStartTime > 0 && block.timestamp > poolStartTime + 1 days) {
-            int256 totalValue = int256(getTotalSupply());
+        if (poolStartTime > 0 && blocktime() > poolStartTime + 1 days) {
+            uint256 totalValue = getTotalSupply() + totalClaimedVariable + totalClaimedFixedPrev - prevMaxSupply;
             uint256 time = timeSinceStart();
-            uint256 subVariable = ((variablePoolLimit * time) / lockDuration);
-            int256 totalSub = totalValue - int256(fixedPoolLimit) - int256(subVariable);
+            uint256 expectedValue = variablePoolLimit * (time / lockDuration);
+            int256 totalSub = int256(totalValue) - int256(expectedValue);
             variableInterestRate = 1e19 * (365 days) * totalSub / int256(time * variablePoolLimit);
         }
         return (int256(interestRate), variableInterestRate);
     }
 
+
+    function calculateInterestFixed(uint256 tokenId) public view returns (uint256) {
+    FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
+    uint256 depositTime = depositData.depositTime;
+    uint256 fixedDepositAvgTime = fixedDepositSumTime / fixedDepositNum;
+    uint256 prevMaxSupplyNow = prevMaxSupply;
+    uint256 prevTime = poolStartTime;
+
+    if (poolStartTime == 0){ //pool hasn't started yet
+        prevTime = blocktime();
+        prevMaxSupplyNow = getTotalSupply() + totalClaimedFixedPrev;
+    }
+    uint256 avgInterest = (prevMaxSupplyNow - totalDepositedFixed) / fixedDepositNum;
+    uint256 interest = 0;
+    if (prevTime - fixedDepositAvgTime > 1){
+        interest=avgInterest * (prevTime - depositTime) / (prevTime - fixedDepositAvgTime);
+    }
+
+    if(poolStartTime > 0){
+        uint256 timeLocked = timeSinceStart();
+        interest += calculateInterest(depositData.amount, interestRate, timeLocked);
+        if(blocktime() >= poolStartTime + lockDuration){
+            interest += depositData.amount;
+        }
+    }
+
+    return interest - depositData.claim;
+}
+
+
+    function calculateInterestVariable(uint256 tokenId) public view returns (uint256) {
+        VariableNFT.DepositData memory depositData = variableNFT.getDepositData(tokenId);
+        if(poolStartTime > 0){
+            uint256 totalValue = getTotalSupply() + totalClaimedVariable + totalClaimedFixedPrev - prevMaxSupply;
+            uint256 totalAmount = (depositData.amount * totalValue) / variablePoolLimit;
+            return totalAmount - depositData.claim;
+        }
+        return 0;
+    }
+
+    function withdrawFixed(uint256 tokenId) external {
+        uint256 interest = calculateInterestFixed(tokenId);
+        if (poolStartTime == 0){
+            totalClaimedFixedPrev += interest;
+        }
+        token.mintFromFaucet(interest);
+        token.transfer(msg.sender, interest);
+        fixedNFT.claim(tokenId,interest);
+        if(poolStartTime > 0 && blocktime() >= poolStartTime + lockDuration){
+            fixedNFT.burn(tokenId);
+        }
+    }
+
+    function withdrawVariable(uint256 tokenId) external {
+        uint256 interest = calculateInterestVariable(tokenId);
+        totalClaimedVariable += interest;
+        token.mintFromFaucet(interest);
+        token.transfer(msg.sender, interest);
+        variableNFT.claim(tokenId,interest);
+        if(poolStartTime > 0 && blocktime() >= poolStartTime + lockDuration){
+            variableNFT.burn(tokenId);
+        }
+    }
 
     function calculateInterest(uint256 amount, uint256 interestRateAmount, uint256 time) public pure returns (uint256) {
         return (amount * interestRateAmount * time) / 1e18 / (100 * 365 days);
@@ -157,16 +192,18 @@ contract Pool is Ownable {
     function timeSinceStart() public view returns (uint256) {
         if (poolStartTime == 0) {
             return 0;
-        } else if (block.timestamp < poolStartTime + lockDuration) {
-            return block.timestamp - poolStartTime;
+        } else if (blocktime() < poolStartTime + lockDuration) {
+            return blocktime() - poolStartTime;
         } else {
             return lockDuration;
         }
     }
 
+    function blocktime() public view returns (uint256) {
+        return block.timestamp + addTimestamp;
+    }
+
     function fastForward(uint256 numSeconds) external {
-        if(poolStartTime > 0){
-            poolStartTime -= numSeconds;
-        }   
+        addTimestamp += numSeconds;
     }
 }

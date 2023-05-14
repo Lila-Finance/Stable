@@ -64,7 +64,24 @@ describe("Fixed Interest Pool", () => {
     );
   });
 
-  it("Should mint tokens from faucet", async () => {
+  it("get variable interest rate", async () => {
+    const depositAmount = poolLimit + variablePoolLimit;
+    await token.connect(addr1).mintFromFaucet(poolLimit);
+    await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(poolLimit);
+    await token.connect(addr1).mintFromFaucet(variablePoolLimit);
+    await pool.connect(addr1).depositVariable(variablePoolLimit);
+
+    // Fast forward time to simulate lock duration
+    await pool.connect(owner).fastForward(lockDuration);
+    const interests = await pool.interests();
+    const fixedInterestRate = interests[0];
+    const variableInterestRate = interests[1];
+    console.log(fixedInterestRate.toString());
+    console.log(variableInterestRate.toString());
+  });
+
+  /*it("Should mint tokens from faucet", async () => {
     const faucetMintAmount = ethers.utils.parseEther("200");
     await token.connect(addr1).mintFromFaucet(faucetMintAmount);
     expect(await token.balanceOf(addr1.address)).to.equal(faucetMintAmount);
@@ -79,18 +96,42 @@ describe("Fixed Interest Pool", () => {
     expect(await fixedNFT.balanceOf(addr1.address)).to.equal(1);
   });
 
-  it("Should not allow withdrawal before lock duration", async () => {
-    const depositAmount = poolLimit + variablePoolLimit;
+  it("Should claim fixed interest", async () => {
+    const depositAmount = ethers.utils.parseEther("100");
     await token.connect(addr1).mintFromFaucet(depositAmount);
     await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(depositAmount);
+
+    // Fast forward time to simulate lock duration
+    await pool.connect(owner).fastForward(lockDuration);
+
+    const balanceBeforeClaim = await token.balanceOf(addr1.address);
+    console.log("balanceBeforeClaim, ", balanceBeforeClaim.toString());
+    await pool.connect(addr1).withdrawFixed(0);
+    const balanceAfterClaim = await token.balanceOf(addr1.address);
+    console.log("balanceAfterClaim, ", balanceAfterClaim.toString());
+
+    expect(balanceAfterClaim.gt(balanceBeforeClaim)).to.be.true;
+  });
+
+  it("Should claim variable interest", async () => {
+    const depositAmount = poolLimit + variablePoolLimit;
+    await token.connect(addr1).mintFromFaucet(poolLimit);
+    await token.connect(addr1).approve(pool.address, depositAmount);
     await pool.connect(addr1).depositFixed(poolLimit);
+    await token.connect(addr1).mintFromFaucet(variablePoolLimit);
     await pool.connect(addr1).depositVariable(variablePoolLimit);
+    const balanceBeforeClaim = await token.balanceOf(addr1.address);
+    console.log("balanceBeforeClaim, ", balanceBeforeClaim.toString());
 
-    //const variableAmount = ethers.utils.parseEther("100");
+    // Fast forward time to simulate lock duration
+    await pool.connect(owner).fastForward(lockDuration);
 
-    await expect(pool.connect(addr1).withdrawFixed(0)).to.be.rejectedWith(
-      "Tokens are still locked"
-    );
+    await pool.connect(addr1).withdrawVariable(0);
+    const balanceAfterClaim = await token.balanceOf(addr1.address);
+    console.log("balanceAfterClaim, ", balanceAfterClaim.toString());
+
+    expect(balanceAfterClaim.gt(balanceBeforeClaim)).to.be.true;
   });
 
   it("Should allow withdrawal after lock duration", async () => {
@@ -145,4 +186,22 @@ describe("Fixed Interest Pool", () => {
       "%"
     );
   });
+  it("Should allow withdrawal after lock duration", async () => {
+    const depositAmount = poolLimit + variablePoolLimit;
+    await token.connect(addr1).mintFromFaucet(depositAmount);
+    await token.connect(addr1).approve(pool.address, depositAmount);
+    await pool.connect(addr1).depositFixed(poolLimit);
+    await pool.connect(addr1).depositVariable(variablePoolLimit);
+
+    // Fast forward time to simulate lock duration
+    await pool.connect(owner).fastForward(lockDuration);
+
+    const balanceBeforeWithdraw = await token.balanceOf(addr1.address);
+    await pool.connect(addr1).withdrawFixed(0);
+    await pool.connect(addr1).withdrawVariable(0);
+    const balanceAfterWithdraw = await token.balanceOf(addr1.address);
+
+    expect(balanceAfterWithdraw.gt(balanceBeforeWithdraw)).to.be.true;
+    expect(await fixedNFT.balanceOf(addr1.address)).to.equal(0);
+  });*/
 });

@@ -35,16 +35,15 @@ function VariableNFTs({
           const nftIdNumber = nftId.toNumber();
 
           // Calculate the interest using BigNumber multiplication
-          const time = await poolContract.timeSinceStart();
-          const interest = await poolContract.calculateInterest(
-            depositData["amount"],
-            rate,
-            time
+
+          const interest = await poolContract.calculateInterestVariable(
+            nftIdNumber
           );
           myVariableNFTs.push({
             tokenId: nftIdNumber,
             value: ethers.utils.formatEther(depositData["amount"]),
             interest: ethers.utils.formatEther(interest),
+            claim: ethers.utils.formatEther(depositData["claim"]),
           });
         }
 
@@ -81,7 +80,7 @@ function VariableNFTs({
           color="secondary"
           disabled
         >
-          Redeem Fixed
+          Redeem Interest
         </Button>
       </CardContent>
     </Card>
@@ -100,8 +99,9 @@ function VariableNFTs({
           <CardContent>
             <Typography>Token ID: {variableNFT.tokenId}</Typography>
             <Typography>Value: {variableNFT.value}</Typography>
+            <Typography>Claim: {variableNFT.claim}</Typography>
             <Typography sx={{ marginBottom: 2 }}>
-              Estimated Interest: {variableNFT.interest}
+              Interest: {variableNFT.interest}
             </Typography>
             <Button
               className="redeem-button"

@@ -32,16 +32,14 @@ function FixedNFTs({
           const nftIdNumber = nftId.toNumber();
 
           // Calculate the interest using BigNumber multiplication
-          const time = await poolContract.timeSinceStart();
-          const interest = await poolContract.calculateInterest(
-            depositData["amount"],
-            rate,
-            time
+          const interest = await poolContract.calculateInterestFixed(
+            nftIdNumber
           );
           myFixedNFTs.push({
             tokenId: nftIdNumber,
             value: ethers.utils.formatEther(depositData["amount"]),
             interest: ethers.utils.formatEther(interest),
+            claim: ethers.utils.formatEther(depositData["claim"]),
           });
         }
 
@@ -78,7 +76,7 @@ function FixedNFTs({
           color="secondary"
           disabled
         >
-          Redeem Fixed
+          Redeem Interest
         </Button>
       </CardContent>
     </Card>
@@ -97,6 +95,7 @@ function FixedNFTs({
           <CardContent>
             <Typography>Token ID: {fixedNFT.tokenId}</Typography>
             <Typography>Value: {fixedNFT.value}</Typography>
+            <Typography>Claimed: {fixedNFT.claim}</Typography>
             <Typography sx={{ marginBottom: 2 }}>
               Interest: {fixedNFT.interest}
             </Typography>
@@ -107,7 +106,7 @@ function FixedNFTs({
               onClick={() => redeemFixed(fixedNFT.tokenId)}
               disabled={isLoading}
             >
-              Redeem Fixed
+              Redeem Interest
             </Button>
           </CardContent>
         </Card>

@@ -11,6 +11,7 @@ contract VariableNFT is ERC721Enumerable {
     struct DepositData {
         uint256 amount;
         uint256 depositTime;
+        uint256 claim;
     }
 
     mapping(uint256 => DepositData) private tokenIdToDepositData;
@@ -31,9 +32,14 @@ contract VariableNFT is ERC721Enumerable {
         _safeMint(to, newTokenId);
         nextTokenId++;
 
-        tokenIdToDepositData[newTokenId] = DepositData(amount, depositTime);
+        tokenIdToDepositData[newTokenId] = DepositData(amount, depositTime, 0);
 
         return newTokenId;
+    }
+
+    function claim(uint256 tokenId, uint256 amount) external onlyPool {
+        DepositData storage depositData = tokenIdToDepositData[tokenId];
+        depositData.claim += amount;
     }
 
     function totalSupply() public override view returns (uint256) {

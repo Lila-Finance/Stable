@@ -80,6 +80,8 @@ function App() {
   //effect when address changes
   useEffect(() => {
     async function setPool() {
+      console.log(address);
+      console.log(await poolDeployerContract.getPoolLength());
       const numPools = (await poolDeployerContract.getPoolLength()).toNumber();
       setNumPools(numPools);
       if (numPools > 0) {
@@ -117,6 +119,7 @@ function App() {
       const timeSinceStart = await poolContract.timeSinceStart();
       const timeSinceStartInDays = timeSinceStart.div(secondsInADay);
       setTimeSinceStart(`${timeSinceStartInDays.toString()} days`);
+      console.log(rates);
 
       setFixedRate(rates[0]);
       setVariableRate(rates[1]);
