@@ -87,7 +87,6 @@ function VariableNFTs({
   const SampleNFTCard = () => (
     <Card sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
       <CardContent>
-        <Typography>Sample Token ID: 12345</Typography>
         <Typography>Sample Value: 100</Typography>
         <Typography sx={{ marginBottom: 2 }}>Sample Interest: 10</Typography>
         <Button
@@ -113,7 +112,6 @@ function VariableNFTs({
           sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
         >
           <CardContent>
-            <Typography>Token ID: {variableNFT.tokenId}</Typography>
             <Typography>Value: {variableNFT.value}</Typography>
             <Typography>Claim: {variableNFT.claim}</Typography>
             <Typography sx={{ marginBottom: 2 }}>

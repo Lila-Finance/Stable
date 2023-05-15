@@ -23,10 +23,10 @@ function FixedNFTData({ rate, poolContract, refreshKey }) {
           Fixed Pool
         </Typography>
         <Typography variant="body1">
-          Supply: {ethers.utils.formatEther(fixedSupply)} TKN
+          Supply: {ethers.utils.formatEther(fixedSupply)} DAI
         </Typography>
         <Typography variant="body1">
-          Limit: {ethers.utils.formatEther(limit)} TKN
+          Limit: {ethers.utils.formatEther(limit)} DAI
         </Typography>
         <Typography variant="body1">
           Interest Rate: {ethers.utils.formatEther(rate)}%

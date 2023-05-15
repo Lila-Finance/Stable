@@ -66,7 +66,7 @@ function App() {
   const [poolContract, setPoolContract] = useState(null);
   const [fixedNFTContract, setFixedNFTContract] = useState(null);
   const [variableNFTContract, setVariableNFTContract] = useState(null);
-  const [numPools, setNumPools] = useState(0);
+  const [numPools, setNumPools] = useState(3);
   const [poolNum, setPoolNum] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
   const [developerMode, setDeveloperMode] = useState(false);
@@ -79,10 +79,6 @@ function App() {
   //effect when address changes
   useEffect(() => {
     async function setPool() {
-      console.log(address);
-      console.log(await poolDeployerContract.getPoolLength());
-      const numPools = (await poolDeployerContract.getPoolLength()).toNumber();
-      setNumPools(numPools);
       if (numPools > 0) {
         const poolInfo = await poolDeployerContract.pools(poolNum % numPools);
         const poolContract = new ethers.Contract(poolInfo, poolAbi, signer);
@@ -140,33 +136,9 @@ function App() {
       >
         <Typography variant="body1" component="div">
           Welcome to our alpha stage app! Your positions are minted as NFTs, and
-          this app is currently on the Sepolia testnet.
+          this app is currently on the Polygon mainnet and yield is generated
+          through Aave. You need DAI on Polygon to test this app.
         </Typography>
-        <br />
-        <Typography variant="body1" component="div">
-          You will need Sepolia ETH to test, which you can get for free. Follow
-          these instructions:
-        </Typography>
-        <ul>
-          <li>
-            <Link
-              href="https://www.alchemy.com/overviews/how-to-add-sepolia-to-metamask"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Connect to Sepolia network
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="https://sepoliafaucet.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Sepolia Eth Faucet
-            </Link>
-          </li>
-        </ul>
       </Box>
       <NavBar onDeveloperModeChange={setDeveloperMode} />
       <Container>
@@ -186,20 +158,17 @@ function App() {
             <span className="gradient-text">VARIABLE</span> yields
           </Typography>
         </Box>
-        {developerMode && <CreatePool />}
         {poolContract ? (
           <div>
-            {developerMode && (
-              <PoolManagement
-                poolContract={poolContract}
-                timeSinceStart={timeSinceStart}
-                lockDuration={lockDuration}
-                numPools={numPools}
-                setPoolNum={setPoolNum}
-                poolNum={poolNum}
-                handleRefresh={handleRefresh}
-              />
-            )}
+            <PoolManagement
+              poolContract={poolContract}
+              timeSinceStart={timeSinceStart}
+              lockDuration={lockDuration}
+              numPools={numPools}
+              setPoolNum={setPoolNum}
+              poolNum={poolNum}
+              handleRefresh={handleRefresh}
+            />
             <Grid container spacing={5}>
               <Grid item xs={6}>
                 <Card

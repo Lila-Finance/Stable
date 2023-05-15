@@ -23,10 +23,10 @@ function VariableNFTData({ rate, poolContract, refreshKey }) {
           Variable Pool
         </Typography>
         <Typography variant="body1">
-          Supply: {ethers.utils.formatEther(variableSupply)} TKN
+          Supply: {ethers.utils.formatEther(variableSupply)} DAI
         </Typography>
         <Typography variant="body1">
-          Limit: {ethers.utils.formatEther(limit)} TKN
+          Limit: {ethers.utils.formatEther(limit)} DAI
         </Typography>
         {/*Since it is wrong
         

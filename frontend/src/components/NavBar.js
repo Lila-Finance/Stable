@@ -33,7 +33,10 @@ function NavBar({ onDeveloperModeChange }) {
             style={{ height: "40px", width: "auto" }}
           />
         </IconButton>
-        <Button color="inherit" href="">
+        <Button
+          color="inherit"
+          href="https://lila-finance.gitbook.io/lila-documentation/"
+        >
           Documentation
         </Button>
         <Box sx={{ flexGrow: 1 }} />
@@ -49,16 +52,6 @@ function NavBar({ onDeveloperModeChange }) {
           View/Claim Holdings
         </Typography>
         <Box sx={{ flexGrow: 1 }} />
-        <FormControlLabel
-          control={
-            <Switch
-              checked={developerMode}
-              onChange={handleDeveloperModeChange}
-              name="developerMode"
-            />
-          }
-          label="Developer Mode"
-        />
         <ConnectButton />
       </Toolbar>
     </AppBar>

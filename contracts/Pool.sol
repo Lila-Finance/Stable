@@ -74,17 +74,6 @@ contract Pool is Ownable {
         startPool();
     }
 
-    function fundFixed(uint256 amount) external { //in case something goes wrong
-        require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        require(_dai.approve(address(_pool), amount), "Approve failed");
-        _pool.supply(address(_dai), amount, address(this), 0);
-    }
-
-    function fundVariable(uint256 amount) external { //in case something goes wrong
-        require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        require(_dai.approve(address(_pool), amount), "Approve failed");
-    }
-
     function depositVariable(uint256 amount) external {
         require(totalDepositedVariable + amount <= variablePoolLimit, "Variable pool limit reached");
         require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
@@ -226,9 +215,5 @@ contract Pool is Ownable {
 
     function blocktime() public view returns (uint256) {
         return block.timestamp + addTimestamp;
-    }
-
-    function fastForward(uint256 numSeconds) external {
-        addTimestamp += numSeconds;
     }
 }
