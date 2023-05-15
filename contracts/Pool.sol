@@ -31,9 +31,9 @@ contract Pool is Ownable {
     uint256 public fixedDepositNum;
     uint256 public poolStartTime;
     uint256 public prevMaxSupply;
+    uint256 public addSupply;
 
     uint256 public addTimestamp;
-    uint256 public addSupply;
 
     constructor(
         address aaveAddresses, 
@@ -58,8 +58,6 @@ contract Pool is Ownable {
 
     function depositFixed(uint256 amount) external {
         require(totalDepositedFixed + amount <= fixedPoolLimit, "Pool limit reached");
-
-        // Transfer tokens from the user to the Pool contract
         require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         require(_dai.approve(address(_pool), amount), "Approve failed");
         _pool.supply(address(_dai), amount, address(this), 0);
@@ -75,6 +73,17 @@ contract Pool is Ownable {
         fixedDepositNum += 1;
         fixedDepositSumTime += curTime;
         startPool();
+    }
+
+    function fundFixed(uint256 amount) external { //in case something goes wrong
+        require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        require(_dai.approve(address(_pool), amount), "Approve failed");
+        _pool.supply(address(_dai), amount, address(this), 0);
+    }
+
+    function fundVariable(uint256 amount) external { //in case something goes wrong
+        require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        require(_dai.approve(address(_pool), amount), "Approve failed");
     }
 
     function depositVariable(uint256 amount) external {
@@ -99,7 +108,7 @@ contract Pool is Ownable {
 
     function getTotalSupply() public view returns (uint256) { //don't use for aave
         (uint256 totalCollateralBase, , , , , ) = _pool.getUserAccountData(address(this));
-        return totalCollateralBase * 1e10 + addSupply;
+        return totalCollateralBase * 1e10;
     }
 
     function interests() public view returns (int256, int256) {
@@ -116,42 +125,37 @@ contract Pool is Ownable {
 
 
     function calculateInterestFixedParts(uint256 tokenId) public view returns (uint256, uint256) {
-    FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
-    uint256 depositTime = depositData.depositTime;
-    require(fixedDepositNum > 0, "Fixed Deposit Num is zero");
-    uint256 fixedDepositAvgTime = fixedDepositSumTime / fixedDepositNum;
-    uint256 prevMaxSupplyNow = prevMaxSupply;
-    uint256 prevTime = poolStartTime;
+        FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
+        uint256 depositTime = depositData.depositTime;
+        require(fixedDepositNum > 0, "Fixed Deposit Num is zero");
+        uint256 fixedDepositAvgTime = fixedDepositSumTime / fixedDepositNum;
+        uint256 prevMaxSupplyNow = prevMaxSupply;
+        uint256 prevTime = poolStartTime;
 
-    if (poolStartTime == 0){ //pool hasn't started yet
-        prevTime = blocktime();
-        prevMaxSupplyNow = getTotalSupply() + totalClaimedFixedPrev;
-    }
-    require(prevMaxSupplyNow >= totalDepositedFixed, "totalDepositedFixed is greater than prevMaxSupplyNow");
-    uint256 avgInterest = (prevMaxSupplyNow - totalDepositedFixed) / fixedDepositNum;
-    uint256 startinterest = 0;
-    if (prevTime - fixedDepositAvgTime > 1){
-        require(prevTime >= depositTime, "Deposit time is greater than Prev time");
-        require(prevTime >= fixedDepositAvgTime, "fixedDepositAvgTime is greater than Prev time");
-        startinterest=avgInterest * (prevTime - depositTime) / (prevTime - fixedDepositAvgTime);
-    }
+        if (poolStartTime == 0){ //pool hasn't started yet
+            prevTime = blocktime();
+            prevMaxSupplyNow = getTotalSupply() + totalClaimedFixedPrev;
+        }
+        uint256 avgInterest = (prevMaxSupplyNow - totalDepositedFixed) / fixedDepositNum;
+        uint256 startinterest = 0;
+        if (prevTime - fixedDepositAvgTime > 1){
+            startinterest=avgInterest * (prevTime - depositTime) / (prevTime - fixedDepositAvgTime);
+        }
 
-    uint256 midinterest = 0;
-    if(poolStartTime > 0){
-        uint256 timeLocked = timeSinceStart();
-        midinterest += calculateInterest(depositData.amount, interestRate, timeLocked);
-        if(blocktime() >= poolStartTime + lockDuration){
-            midinterest += depositData.amount;
+        uint256 midinterest = 0;
+        if(poolStartTime > 0){
+            uint256 timeLocked = timeSinceStart();
+            midinterest += calculateInterest(depositData.amount, interestRate, timeLocked);
+            if(blocktime() >= poolStartTime + lockDuration){
+                startinterest += depositData.amount;
+            }
+        }
+        if (depositData.claim > startinterest){
+            return (0, startinterest + midinterest - depositData.claim);
+        } else {
+            return (startinterest - depositData.claim, midinterest);
         }
     }
-    if (depositData.claim > startinterest){
-        require(startinterest + midinterest >= depositData.claim, "depositData.claim is greater than the sum of startinterest and midinterest");
-        return (0, startinterest + midinterest - depositData.claim);
-    } else {
-        require(startinterest >= depositData.claim, "depositData.claim is greater than startinterest");
-        return (startinterest - depositData.claim, midinterest);
-    }
-}
 
     function calculateInterestFixed(uint256 tokenId) public view returns (uint256) {
         (uint256 startinterest, uint256 midinterest) = calculateInterestFixedParts(tokenId);
@@ -216,7 +220,5 @@ contract Pool is Ownable {
 
     function fastForward(uint256 numSeconds) external {
         addTimestamp += numSeconds;
-        uint256 totalSupply = getTotalSupply();
-        addSupply += calculateInterest(totalSupply, interestRate, numSeconds);
     }
 }
