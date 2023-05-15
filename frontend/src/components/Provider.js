@@ -1,17 +1,18 @@
 import { ethers } from "ethers";
-import TokenAbi from "../abi/Token.json";
+import IERC20Abi from "../abi/IERC20.json";
 import PoolDeployerAbi from "../abi/PoolDeployer.json";
 import addresses from "../addresses/addresses.json";
 
-const { TOKEN_ADDRESS, POOL_DEPLOYER_ADDRESS } = addresses;
+const { DAI_ADDRESS, AAVE_ADDRESSES_PROVIDER, POOL_DEPLOYER_ADDRESS } =
+  addresses;
 
-const tokenAbi = TokenAbi.abi;
+const tokenAbi = IERC20Abi.abi;
 const poolDeployerAbi = PoolDeployerAbi.abi;
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 
-const tokenContract = new ethers.Contract(TOKEN_ADDRESS, tokenAbi, signer);
+const tokenContract = new ethers.Contract(DAI_ADDRESS, tokenAbi, signer);
 const poolDeployerContract = new ethers.Contract(
   POOL_DEPLOYER_ADDRESS,
   poolDeployerAbi,

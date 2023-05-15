@@ -30,6 +30,10 @@ function FixedNFTs({
           const nftId = await fixedNFTContract.tokenOfOwnerByIndex(address, i);
           const depositData = await fixedNFTContract.getDepositData(nftId);
           const nftIdNumber = nftId.toNumber();
+          console.log(nftIdNumber);
+          /*const interest = await poolContract.calculateInterestFixedParts(
+            nftIdNumber
+          );*/
 
           // Calculate the interest using BigNumber multiplication
           const interest = await poolContract.calculateInterestFixed(

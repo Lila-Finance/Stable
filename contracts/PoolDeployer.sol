@@ -1,5 +1,4 @@
 pragma solidity ^0.8.0;
-import './Token.sol';
 import "./Pool.sol";
 
 contract PoolDeployer {
@@ -12,13 +11,13 @@ contract PoolDeployer {
     event PoolCreated(Pool pool);
 
     function createPool(
-        Token _token,
+        address _aaveAddresses, 
+        address _daiAddress,
         uint256 _fixedPoolLimit,
         uint256 _lockDuration,
-        uint256 _interestRate,
-        uint256[] memory _dailyInterestRates
+        uint256 _interestRate
     ) public {
-        Pool newPool = new Pool(_token, _fixedPoolLimit, _lockDuration, _interestRate, _dailyInterestRates);
+        Pool newPool = new Pool(_aaveAddresses, _daiAddress, _fixedPoolLimit, _lockDuration, _interestRate);
 
         pools.push(PoolInfo({
             pool: newPool

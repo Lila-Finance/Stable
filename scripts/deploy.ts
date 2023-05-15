@@ -4,12 +4,10 @@ import { ethers } from "hardhat";
 import fs from "fs";
 import path from "path";
 
-async function main() {
-  const TokenFactory = await ethers.getContractFactory("Token");
-  const token = await TokenFactory.deploy();
-  await token.deployed();
-  console.log("Token deployed to:", token.address);
+const DAI_ADDRESS = "0x68194a729C2450ad26072b3D33ADaCbcef39D574";
+const AAVE_ADDRESSES_PROVIDER = "0x0496275d34753A48320CA58103d5220d394FF77F";
 
+async function main() {
   const PoolDeployerFactory = await ethers.getContractFactory("PoolDeployer");
   const poolDeployer = await PoolDeployerFactory.deploy();
   await poolDeployer.deployed();
@@ -22,7 +20,6 @@ async function main() {
   }
 
   for (const contractName of [
-    "Token",
     "PoolDeployer",
     "Pool",
     "FixedNFT",
@@ -43,8 +40,9 @@ async function main() {
 
   // Write addresses to JSON file
   const addresses = {
-    TOKEN_ADDRESS: token.address,
     POOL_DEPLOYER_ADDRESS: poolDeployer.address,
+    DAI_ADDRESS,
+    AAVE_ADDRESSES_PROVIDER,
   };
   const addressDir = path.join(__dirname, "../frontend/src/addresses");
   if (!fs.existsSync(addressDir)) {

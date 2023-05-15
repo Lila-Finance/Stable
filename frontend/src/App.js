@@ -3,7 +3,6 @@ import { ethers } from "ethers";
 import FixedNFTs from "./components/FixedNFTs";
 import SupplyFixed from "./components/SupplyFixed";
 import FixedNFTData from "./components/FixedNFTData";
-import Faucet from "./components/Faucet";
 import { poolDeployerContract } from "./components/Provider";
 import SupplyVariable from "./components/SupplyVariable";
 import VariableNFTs from "./components/VariableNFTs";
@@ -119,7 +118,6 @@ function App() {
       const timeSinceStart = await poolContract.timeSinceStart();
       const timeSinceStartInDays = timeSinceStart.div(secondsInADay);
       setTimeSinceStart(`${timeSinceStartInDays.toString()} days`);
-      console.log(rates);
 
       setFixedRate(rates[0]);
       setVariableRate(rates[1]);
@@ -189,7 +187,6 @@ function App() {
           </Typography>
         </Box>
         {developerMode && <CreatePool />}
-        {developerMode && <Faucet address={address} />}
         {poolContract ? (
           <div>
             {developerMode && (

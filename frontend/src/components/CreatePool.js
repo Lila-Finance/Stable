@@ -3,13 +3,16 @@ import { ethers } from "ethers";
 import { sendParams, poolDeployerContract, tokenContract } from "./Provider";
 
 import { Typography, Box, Button, TextField, Grid } from "@mui/material";
+import addresses from "../addresses/addresses.json";
+
+const { DAI_ADDRESS, AAVE_ADDRESSES_PROVIDER, POOL_DEPLOYER_ADDRESS } =
+  addresses;
 
 const CreatePool = () => {
   const [status, setStatus] = useState("");
   const [fixedPoolLimit, setFixedPoolLimit] = useState("500");
   const [lockDurationDays, setLockDurationDays] = useState("30.417");
   const [interestRatePercentage, setInterestRatePercentage] = useState("10");
-  const [dailyInterestRates, setDailyInterestRates] = useState("10,12");
 
   const createPool = async () => {
     setStatus("Creating pool...");
@@ -22,17 +25,12 @@ const CreatePool = () => {
       ); // Convert days to seconds
       const interestRate = ethers.utils.parseEther(interestRatePercentage);
 
-      // Call the createPool function
-      const dailyInterestRatesParsed = dailyInterestRates
-        .split(",")
-        .map((rate) => ethers.utils.parseEther(rate.trim()));
-
       const createPoolTx = await poolDeployerContract.createPool(
-        tokenContract.address,
+        AAVE_ADDRESSES_PROVIDER,
+        DAI_ADDRESS,
         fixedPoolLimitParsed,
         lockDuration,
-        interestRate,
-        dailyInterestRatesParsed
+        interestRate
       );
       await createPoolTx.wait();
 
@@ -74,15 +72,6 @@ const CreatePool = () => {
             variant="outlined"
             value={interestRatePercentage}
             onChange={(e) => setInterestRatePercentage(e.target.value)}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Daily Interest Rates (comma separated)"
-            variant="outlined"
-            value={dailyInterestRates}
-            onChange={(e) => setDailyInterestRates(e.target.value)}
           />
         </Grid>
       </Grid>
