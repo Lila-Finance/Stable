@@ -4,8 +4,8 @@ import { ethers } from "hardhat";
 import fs from "fs";
 import path from "path";
 
-const DAI_ADDRESS = "0x68194a729C2450ad26072b3D33ADaCbcef39D574";
-const AAVE_ADDRESSES_PROVIDER = "0x0496275d34753A48320CA58103d5220d394FF77F";
+const DAI_ADDRESS = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+const AAVE_ADDRESSES_PROVIDER = "0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb";
 
 async function main() {
   const PoolDeployerFactory = await ethers.getContractFactory("PoolDeployer");

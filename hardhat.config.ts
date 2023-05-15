@@ -13,11 +13,21 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200, // Adjust the number of runs to balance deployment cost vs. transaction cost
+        runs: 150, // Adjust the number of runs to balance deployment cost vs. transaction cost
       },
     },
   },
   networks: {
+    polygon: {
+      url: `https://polygon-mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY as string],
+      gas: 8000000,
+    },
+    optimism: {
+      url: `https://optimism-mainnet.infura.io/v3/${INFURA_API_KEY}`,
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY as string],
+      gas: 8000000,
+    },
     sepolia: {
       url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
       accounts: [
