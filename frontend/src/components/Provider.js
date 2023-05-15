@@ -19,10 +19,7 @@ const poolDeployerContract = new ethers.Contract(
   signer
 );
 
-const sendParams = {
-  /*gasLimit: 1000000,
-  gasPrice: ethers.utils.parseUnits("10", "gwei"),*/
-};
+const sendParams = {};
 
 async function approveSpend(walletAddress, amount, poolContract) {
   const amountWei = ethers.utils.parseEther(amount);

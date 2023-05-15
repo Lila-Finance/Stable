@@ -13,7 +13,7 @@ const config: HardhatUserConfig = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 150, // Adjust the number of runs to balance deployment cost vs. transaction cost
+        runs: 120, // Adjust the number of runs to balance deployment cost vs. transaction cost
       },
     },
   },

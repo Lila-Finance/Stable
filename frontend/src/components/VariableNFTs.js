@@ -60,7 +60,23 @@ function VariableNFTs({
   const redeemVariable = async (tokenId) => {
     try {
       setIsLoading(true);
-      await poolContract.withdrawVariable(tokenId, sendParams);
+      try {
+        // Calculate the interest
+        const interest = await poolContract.calculateInterestVariable(tokenId);
+        console.log("Calculated interest:", interest.toString());
+
+        //get total supply
+        const totalSupply = await poolContract.getTotalSupply();
+        console.log("Total supply:", totalSupply.toString());
+
+        // Calculate totalClaimedVariable
+        const totalClaimedVariable = await poolContract.totalClaimedVariable();
+        console.log("Total claimed variable:", totalClaimedVariable.toString());
+        // Execute withdrawal
+        await poolContract.withdrawVariable(tokenId, sendParams);
+      } catch (error) {
+        console.error("Error during withdrawal:", error);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -108,8 +124,9 @@ function VariableNFTs({
               variant="contained"
               color="primary"
               onClick={() => redeemVariable(variableNFT.tokenId)}
+              disabled={variableNFT.interest === "0.0"}
             >
-              Redeem Variable
+              Redeem Interest
             </Button>
           </CardContent>
         </Card>

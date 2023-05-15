@@ -28,9 +28,11 @@ function VariableNFTData({ rate, poolContract, refreshKey }) {
         <Typography variant="body1">
           Limit: {ethers.utils.formatEther(limit)} TKN
         </Typography>
+        {/*Since it is wrong
+        
         <Typography variant="body1">
           Estimated Interest Rate: {ethers.utils.formatEther(rate)}%
-        </Typography>
+  </Typography>*/}
       </CardContent>
     </Card>
   );

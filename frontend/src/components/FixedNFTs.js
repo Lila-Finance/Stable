@@ -60,7 +60,36 @@ function FixedNFTs({
   const redeemFixed = async (tokenId) => {
     try {
       setIsLoading(true);
-      await poolContract.withdrawFixed(tokenId, sendParams);
+      try {
+        // Calculate the interest
+        const interestParts = await poolContract.calculateInterestFixedParts(
+          tokenId
+        );
+        console.log(
+          "Calculated interest start part:",
+          interestParts[0].toString()
+        );
+        console.log(
+          "Calculated interest mid part:",
+          interestParts[1].toString()
+        );
+
+        const interest = interestParts[0].add(interestParts[1]);
+        console.log("Total interest:", interest.toString());
+
+        // Calculate totalClaimedFixedPrev
+        const totalClaimedFixedPrev =
+          await poolContract.totalClaimedFixedPrev();
+        console.log(
+          "Total claimed fixed prev:",
+          totalClaimedFixedPrev.toString()
+        );
+
+        // Execute withdrawal
+        await poolContract.withdrawFixed(tokenId, sendParams);
+      } catch (error) {
+        console.error("Error during withdrawal:", error);
+      }
     } catch (err) {
       console.error(err);
     } finally {
