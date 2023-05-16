@@ -6,12 +6,16 @@ import {
   Box,
   Typography,
   InputAdornment,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import { ethers } from "ethers";
 
 function SupplyVariable({ address, poolContract }) {
   const [amount, setAmount] = useState("");
   const [max, setMax] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleMaxClick = async () => {
     let maxVariable = await poolContract.variablePoolLimit();
@@ -26,6 +30,7 @@ function SupplyVariable({ address, poolContract }) {
   };
 
   const supplyVariable = async () => {
+    setIsLoading(true);
     try {
       let amountWei;
       if (max) {
@@ -38,9 +43,16 @@ function SupplyVariable({ address, poolContract }) {
       } else {
         amountWei = await approveSpend(address, amount, poolContract);
       }
-      await poolContract.depositVariable(amountWei, sendParams);
+      setError(null);
+      const txResponse = await poolContract.depositVariable(amountWei, sendParams);
+      // Wait for the transaction to be mined
+      await txResponse.wait();
     } catch (err) {
       console.error(err);
+      setError("Insufficient balance");
+    } finally {
+      console.log("done transaction");
+      setIsLoading(false);
     }
   };
 
@@ -49,6 +61,11 @@ function SupplyVariable({ address, poolContract }) {
       <Typography variant="h4" fontWeight="bold" mb={3}>
         Supply Variable
       </Typography>
+      {error && (
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
       <Box mb={2}>
         <TextField
           label="Amount"
@@ -77,9 +94,17 @@ function SupplyVariable({ address, poolContract }) {
         variant="contained"
         color="primary"
         size="large"
+        disabled={isLoading}
         onClick={supplyVariable}
       >
-        Supply
+        {isLoading ? (
+          <>
+            <CircularProgress size={24} />
+            <span style={{ marginLeft: "10px" }}>Transacting...</span>
+          </>
+        ) : (
+          'Supply'
+        )}
       </Button>
     </Box>
   );

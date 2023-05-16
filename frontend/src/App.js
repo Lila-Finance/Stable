@@ -155,9 +155,10 @@ function App() {
               marginBottom: 2,
             }}
           >
-            The platform that allows you to choose{" "}
+            {/* The platform that allows you to choose{" "}
             <span className="gradient-text">FIXED</span> or{" "}
-            <span className="gradient-text">VARIABLE</span> yields
+            <span className="gradient-text">VARIABLE</span> yields */}
+            Interest Rate Swap
           </Typography>
         </Box>
         {poolContract ? (
@@ -234,7 +235,7 @@ function App() {
           <Container>
             <Box mt={10} mb={6}>
               <Typography
-                variant="h3"
+                variant="h4"
                 component="div"
                 align="center"
                 sx={{

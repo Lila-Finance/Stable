@@ -6,12 +6,16 @@ import {
   Box,
   Typography,
   InputAdornment,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
 import { ethers } from "ethers";
 
 function SupplyFixed({ address, poolContract }) {
   const [amount, setAmount] = useState("");
   const [max, setMax] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleMaxClick = async () => {
     let maxFixed = await poolContract.fixedPoolLimit();
@@ -26,6 +30,7 @@ function SupplyFixed({ address, poolContract }) {
   };
 
   const supplyFixed = async () => {
+    setIsLoading(true);
     try {
       let amountWei;
       if (max) {
@@ -38,9 +43,15 @@ function SupplyFixed({ address, poolContract }) {
       } else {
         amountWei = await approveSpend(address, amount, poolContract);
       }
-      await poolContract.depositFixed(amountWei, sendParams);
+      setError(null);
+      const txResponse = await poolContract.depositFixed(amountWei, sendParams);
+      // Wait for the transaction to be mined
+      await txResponse.wait();
     } catch (err) {
       console.error(err);
+      setError("Insufficient balance");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,6 +60,11 @@ function SupplyFixed({ address, poolContract }) {
       <Typography variant="h4" fontWeight="bold" mb={3}>
         Supply Fixed
       </Typography>
+      {error && (
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
       <Box mb={2}>
         <TextField
           label="Amount"
@@ -77,9 +93,17 @@ function SupplyFixed({ address, poolContract }) {
         variant="contained"
         color="primary"
         size="large"
+        disabled={isLoading}
         onClick={supplyFixed}
       >
-        Supply
+        {isLoading ? (
+          <>
+            <CircularProgress size={24} />
+            <span style={{ marginLeft: "10px" }}>Transacting...</span>
+          </>
+        ) : (
+          'Supply'
+        )}
       </Button>
     </Box>
   );
