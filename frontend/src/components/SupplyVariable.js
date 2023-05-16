@@ -6,12 +6,14 @@ import {
   Box,
   Typography,
   InputAdornment,
+  Alert,
 } from "@mui/material";
 import { ethers } from "ethers";
 
 function SupplyVariable({ address, poolContract }) {
   const [amount, setAmount] = useState("");
   const [max, setMax] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleMaxClick = async () => {
     let maxVariable = await poolContract.variablePoolLimit();
@@ -38,9 +40,11 @@ function SupplyVariable({ address, poolContract }) {
       } else {
         amountWei = await approveSpend(address, amount, poolContract);
       }
+      setError(null);
       await poolContract.depositVariable(amountWei, sendParams);
     } catch (err) {
       console.error(err);
+      setError("Insufficient balance");
     }
   };
 
@@ -49,6 +53,11 @@ function SupplyVariable({ address, poolContract }) {
       <Typography variant="h4" fontWeight="bold" mb={3}>
         Supply Variable
       </Typography>
+      {error && (
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      )}
       <Box mb={2}>
         <TextField
           label="Amount"
