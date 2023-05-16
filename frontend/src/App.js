@@ -66,7 +66,7 @@ function App() {
   const [poolContract, setPoolContract] = useState(null);
   const [fixedNFTContract, setFixedNFTContract] = useState(null);
   const [variableNFTContract, setVariableNFTContract] = useState(null);
-  const [numPools, setNumPools] = useState(3);
+  const [numPools, setNumPools] = useState(2);
   const [poolNum, setPoolNum] = useState(0);
   const [refreshKey, setRefreshKey] = useState(0);
   const [developerMode, setDeveloperMode] = useState(false);
@@ -136,8 +136,9 @@ function App() {
       >
         <Typography variant="body1" component="div">
           Welcome to our alpha stage app! Your positions are minted as NFTs, and
-          this app is currently on the Polygon mainnet and yield is generated
-          through Aave. You need DAI on Polygon to test this app.
+          this app is currently on the Polygon mainnet. Yield is generated
+          through Aave with varying rates. You need DAI on Polygon to test this
+          app.
         </Typography>
       </Box>
       <NavBar onDeveloperModeChange={setDeveloperMode} />
@@ -146,6 +147,7 @@ function App() {
           <Typography
             variant="h2"
             component="div"
+            align="center"
             sx={{
               fontWeight: "bold",
               color: "primary.main",
@@ -234,6 +236,7 @@ function App() {
               <Typography
                 variant="h3"
                 component="div"
+                align="center"
                 sx={{
                   fontWeight: "bold",
                   color: "primary.main",
@@ -241,7 +244,7 @@ function App() {
                   marginBottom: 2,
                 }}
               >
-                Please Connect Wallet
+                Interest Rate Swap
               </Typography>
             </Box>
           </Container>

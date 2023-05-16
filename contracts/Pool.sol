@@ -26,8 +26,6 @@ contract Pool is Ownable {
     uint256 public totalClaimedFixedPrev;
     uint256 public totalClaimedFixed;
     uint256 public totalClaimedVariable;
-    uint256 public fixedDepositSumTime;
-    uint256 public fixedDepositNum;
     uint256 public poolStartTime;
     uint256 public prevMaxSupply;
     uint256 public addSupply;
@@ -68,9 +66,6 @@ contract Pool is Ownable {
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedFixed += amount;
-
-        fixedDepositNum += 1;
-        fixedDepositSumTime += curTime;
         startPool();
     }
 
@@ -122,19 +117,19 @@ contract Pool is Ownable {
     function calculateInterestFixedParts(uint256 tokenId) public view returns (uint256, uint256) {
         FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
         uint256 depositTime = depositData.depositTime;
-        require(fixedDepositNum > 0, "Fixed Deposit Num is zero");
-        uint256 fixedDepositAvgTime = fixedDepositSumTime / fixedDepositNum;
         uint256 prevMaxSupplyNow = prevMaxSupply;
         uint256 prevTime = poolStartTime;
 
+        uint256 timeToStart = blocktime() - depositTime;
         if (poolStartTime == 0){ //pool hasn't started yet
             prevTime = blocktime();
             prevMaxSupplyNow = getTotalSupply() + totalClaimedFixedPrev;
+        } else {
+            timeToStart = poolStartTime - depositTime;
         }
-        uint256 avgInterest = interestRate * zeroed(prevMaxSupplyNow, totalDepositedFixed) / fixedDepositNum;
-        uint256 startinterest = 0;
-        if (zeroed(prevTime, fixedDepositAvgTime) > 1){
-            startinterest=avgInterest * zeroed(prevTime, depositTime) / (prevTime - fixedDepositAvgTime);
+        uint256 startinterest = calculateInterest(depositData.amount, interestRate, timeToStart); //need to fix so interest rate is accurate
+        if(startinterest > zeroed(prevMaxSupplyNow, totalDepositedFixed)){
+            startinterest = 0;
         }
 
         uint256 midinterest = 0;

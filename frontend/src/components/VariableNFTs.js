@@ -122,7 +122,7 @@ function VariableNFTs({
               variant="contained"
               color="primary"
               onClick={() => redeemVariable(variableNFT.tokenId)}
-              disabled={variableNFT.interest === "0.0"}
+              disabled={isLoading || variableNFT.interest === "0.0"}
             >
               Redeem Interest
             </Button>

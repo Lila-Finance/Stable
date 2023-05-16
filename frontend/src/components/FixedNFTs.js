@@ -135,7 +135,7 @@ function FixedNFTs({
               variant="contained"
               color="primary"
               onClick={() => redeemFixed(fixedNFT.tokenId)}
-              disabled={isLoading}
+              disabled={isLoading || fixedNFT.interest === "0.0"}
             >
               Redeem Interest
             </Button>
