@@ -8,7 +8,6 @@ import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contract
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./FixedNFT.sol";
 import "./VariableNFT.sol";
-import "hardhat/console.sol";
 
 contract Pool is Ownable {
     IPool private _pool;
@@ -27,8 +26,6 @@ contract Pool is Ownable {
     uint256 public totalClaimedFixedPrev;
     uint256 public totalClaimedFixed;
     uint256 public totalClaimedVariable;
-    uint256 public fixedDepositSumTime;
-    uint256 public fixedDepositNum;
     uint256 public poolStartTime;
     uint256 public prevMaxSupply;
     uint256 public addSupply;
@@ -69,21 +66,7 @@ contract Pool is Ownable {
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedFixed += amount;
-
-        fixedDepositNum += 1;
-        fixedDepositSumTime += curTime;
         startPool();
-    }
-
-    function fundFixed(uint256 amount) external { //in case something goes wrong
-        require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        require(_dai.approve(address(_pool), amount), "Approve failed");
-        _pool.supply(address(_dai), amount, address(this), 0);
-    }
-
-    function fundVariable(uint256 amount) external { //in case something goes wrong
-        require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        require(_dai.approve(address(_pool), amount), "Approve failed");
     }
 
     function depositVariable(uint256 amount) external {
@@ -102,7 +85,7 @@ contract Pool is Ownable {
         //print out totalDepositedFixed, totalDepositedVariable, and poolStartTime
         if (totalDepositedVariable == variablePoolLimit && totalDepositedFixed == fixedPoolLimit && poolStartTime == 0) {
             poolStartTime = blocktime();
-            prevMaxSupply = getTotalSupply() + totalClaimedFixedPrev;
+            prevMaxSupply = getTotalSupply() + totalClaimedFixedPrev + totalClaimedVariable;
         }
     }
 
@@ -114,7 +97,7 @@ contract Pool is Ownable {
     function interests() public view returns (int256, int256) {
         int256 variableInterestRate = int256(interestRate);
         if (poolStartTime > 0 && blocktime() > poolStartTime + 1 days) {
-            uint256 totalValue = getTotalSupply() + totalClaimedVariable + totalClaimedFixedPrev - prevMaxSupply;
+            uint256 totalValue = zeroed(getTotalSupply() + totalClaimedVariable + totalClaimedFixedPrev, prevMaxSupply);
             uint256 time = timeSinceStart();
             uint256 expectedValue = variablePoolLimit * (time / lockDuration);
             int256 totalSub = int256(totalValue) - int256(expectedValue);
@@ -123,23 +106,30 @@ contract Pool is Ownable {
         return (int256(interestRate), variableInterestRate);
     }
 
+    function zeroed(uint256 a, uint256 b) internal pure returns (uint256) {
+        if(a > b){
+            return a - b;
+        }
+        return 0;
+    }
+
 
     function calculateInterestFixedParts(uint256 tokenId) public view returns (uint256, uint256) {
         FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
         uint256 depositTime = depositData.depositTime;
-        require(fixedDepositNum > 0, "Fixed Deposit Num is zero");
-        uint256 fixedDepositAvgTime = fixedDepositSumTime / fixedDepositNum;
         uint256 prevMaxSupplyNow = prevMaxSupply;
         uint256 prevTime = poolStartTime;
 
+        uint256 timeToStart = blocktime() - depositTime;
         if (poolStartTime == 0){ //pool hasn't started yet
             prevTime = blocktime();
             prevMaxSupplyNow = getTotalSupply() + totalClaimedFixedPrev;
+        } else {
+            timeToStart = poolStartTime - depositTime;
         }
-        uint256 avgInterest = (prevMaxSupplyNow - totalDepositedFixed) / fixedDepositNum;
-        uint256 startinterest = 0;
-        if (prevTime - fixedDepositAvgTime > 1){
-            startinterest=avgInterest * (prevTime - depositTime) / (prevTime - fixedDepositAvgTime);
+        uint256 startinterest = calculateInterest(depositData.amount, interestRate, timeToStart); //need to fix so interest rate is accurate
+        if(startinterest > zeroed(prevMaxSupplyNow, totalDepositedFixed)){
+            startinterest = 0;
         }
 
         uint256 midinterest = 0;
@@ -151,9 +141,9 @@ contract Pool is Ownable {
             }
         }
         if (depositData.claim > startinterest){
-            return (0, startinterest + midinterest - depositData.claim);
+            return (0, startinterest + zeroed(midinterest, depositData.claim));
         } else {
-            return (startinterest - depositData.claim, midinterest);
+            return (zeroed(startinterest, depositData.claim), midinterest);
         }
     }
 
@@ -166,9 +156,13 @@ contract Pool is Ownable {
     function calculateInterestVariable(uint256 tokenId) public view returns (uint256) {
         VariableNFT.DepositData memory depositData = variableNFT.getDepositData(tokenId);
         if(poolStartTime > 0){
-            uint256 totalValue = getTotalSupply() + totalClaimedVariable + totalClaimedFixedPrev - prevMaxSupply;
+            uint256 totalSupply = getTotalSupply();
+            uint256 totalValue = zeroed(totalSupply + totalClaimedVariable + totalClaimedFixedPrev, prevMaxSupply);
             uint256 totalAmount = (depositData.amount * totalValue) / variablePoolLimit;
-            return totalAmount - depositData.claim;
+            uint256 out = zeroed(totalAmount, depositData.claim);
+            if (out > totalSupply){
+                return totalSupply;
+            }
         }
         return 0;
     }
@@ -208,7 +202,7 @@ contract Pool is Ownable {
         if (poolStartTime == 0) {
             return 0;
         } else if (blocktime() < poolStartTime + lockDuration) {
-            return blocktime() - poolStartTime;
+            return zeroed(blocktime(), poolStartTime);
         } else {
             return lockDuration;
         }

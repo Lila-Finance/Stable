@@ -38,7 +38,7 @@ Try running some of the following tasks:
 ```shell
 npx hardhat help
 npx hardhat test
-REPORT_GAS=true npx hardhat test
+REPORT_GAS=true npx hardhat test --network sepolia
 npx hardhat node
 npx hardhat run scripts/deploy.ts --network sepolia
 ```
