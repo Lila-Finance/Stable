@@ -34,7 +34,7 @@ import PoolAbi from "./abi/Pool.json";
 import { useAccount } from "wagmi";
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-
+import CircularProgress from '@mui/material/CircularProgress';
 
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
@@ -74,6 +74,8 @@ function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [developerMode, setDeveloperMode] = useState(false);
   const { address, isConnecting, isDisconnected } = useAccount();
+  const [loading, setLoading] = useState(false);
+
 
   const handleRefresh = () => {
     setRefreshKey((prevKey) => prevKey + 1);
@@ -163,7 +165,7 @@ function App() {
           </Typography>
         </Box>
         {poolContract ? (
-          <div>
+          <Box position="relative">
             <PoolManagement
               poolContract={poolContract}
               timeSinceStart={timeSinceStart}
@@ -172,66 +174,87 @@ function App() {
               setPoolNum={setPoolNum}
               poolNum={poolNum}
               handleRefresh={handleRefresh}
+              setIsLoading={setLoading}
             />
             <Grid container spacing={5}>
               <Grid item xs={6}>
+                <FixedNFTData
+                  poolContract={poolContract}
+                  rate={fixedRate}
+                  refreshKey={refreshKey}
+                />
                 <Card
-                  sx={{ backgroundColor: "#202c4a" }}
+                  className="mb-4"
+                  sx={{ backgroundColor: "#40386b" }}
                 >
                   <CardContent>
-                    <Box marginBottom={5}>
-                      <FixedNFTData
-                        poolContract={poolContract}
+                    <SupplyFixed
+                      address={address}
+                      poolContract={poolContract}
+                    />
+                  </CardContent>
+                </Card>
+                <Card
+                  className="mb-4"
+                  sx={{ backgroundColor: "#40386b" }}
+                >
+                  <CardContent>
+                      <FixedNFTs
+                        address={address}
                         rate={fixedRate}
+                        fixedNFTContract={fixedNFTContract}
+                        poolContract={poolContract}
                         refreshKey={refreshKey}
                       />
-                    </Box>
-                    <Box marginBottom={5}>
-                      <SupplyFixed
-                        address={address}
-                        poolContract={poolContract}
-                      />
-                    </Box>
-                    <FixedNFTs
-                      address={address}
-                      rate={fixedRate}
-                      fixedNFTContract={fixedNFTContract}
-                      poolContract={poolContract}
-                      refreshKey={refreshKey}
-                    />
                   </CardContent>
                 </Card>
               </Grid>
               <Grid item xs={6}>
+                <VariableNFTData
+                  poolContract={poolContract}
+                  rate={variableRate}
+                  refreshKey={refreshKey}
+                />
                 <Card
-                  sx={{ backgroundColor: "#202c4a" }}
+                  className="mb-4"
+                  sx={{ backgroundColor: "#40386b" }}
                 >
                   <CardContent>
-                    <Box marginBottom={5}>
-                      <VariableNFTData
-                        poolContract={poolContract}
-                        rate={variableRate}
-                        refreshKey={refreshKey}
-                      />
-                    </Box>
-                    <Box marginBottom={5}>
                       <SupplyVariable
                         address={address}
                         poolContract={poolContract}
                       />
-                    </Box>
-                    <VariableNFTs
-                      address={address}
-                      rate={variableRate}
-                      variableNFTContract={variableNFTContract}
-                      poolContract={poolContract}
-                      refreshKey={refreshKey}
-                    />
+                  </CardContent>
+                </Card>
+                <Card
+                  className="mb-4"
+                  sx={{ backgroundColor: "#40386b" }}
+                >
+                  <CardContent>
+                      <VariableNFTs
+                        address={address}
+                        rate={variableRate}
+                        variableNFTContract={variableNFTContract}
+                        poolContract={poolContract}
+                        refreshKey={refreshKey}
+                      />
                   </CardContent>
                 </Card>
               </Grid>
             </Grid>
-          </div>
+            {loading && (
+              <Box 
+                position="absolute"
+                top={0} right={0} bottom={0} left={0}
+                bgcolor="rgba(0,0,0,0.5)"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <CircularProgress color="primary" />
+              </Box>
+            )}
+          </Box>
         ) : (
           <Container>
             <Box mt={10} mb={6}>

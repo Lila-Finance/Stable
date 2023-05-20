@@ -14,6 +14,8 @@ import "../App.css";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useTheme } from '@mui/system';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
+import Link from '@mui/material/Link';
+import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 
 function NavBar({ onDeveloperModeChange }) {
   const [developerMode, setDeveloperMode] = useState(false);
@@ -41,11 +43,43 @@ function NavBar({ onDeveloperModeChange }) {
           variant="outlined"
           href="https://lila-finance.gitbook.io/lila-documentation/"
           startIcon={<MenuBookIcon />}
+          sx={{
+            '&:hover': {
+              color: theme.palette.primary.main,
+              borderColor: theme.palette.primary.main,
+            },
+          }}
+          target="_blank"
+          rel="noreferrer noopener"
         >
           Documentation
         </Button>
         <Box sx={{ flexGrow: 1 }} />
         <Box sx={{ flexGrow: 1 }} />
+        <Link className="mr-2" href="https://twitter.com/LilaFinance" color="inherit" target="_blank" rel="noreferrer noopener">
+          <IconButton 
+            color="secondary"
+            sx={{
+              '&:hover': {
+                color: theme.palette.primary.main,
+              },
+            }}
+          >
+            <FaTwitter />
+          </IconButton>
+        </Link>
+        <Link className="mr-3" href="https://discord.gg/y2xzVcSuCq" color="inherit" target="_blank" rel="noreferrer noopener">
+          <IconButton 
+            color="secondary"
+            sx={{
+              '&:hover': {
+                color: theme.palette.primary.main,
+              },
+            }}
+          >
+            <FaDiscord />
+          </IconButton>
+        </Link>
         <ConnectButton />
       </Toolbar>
     </AppBar>

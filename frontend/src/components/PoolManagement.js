@@ -22,6 +22,7 @@ function PoolManagement({
   setPoolNum,
   poolNum,
   handleRefresh,
+  setIsLoading,
 }) {
   const [loadingPrev, setLoadingPrev] = useState(false);
   const [loadingNext, setLoadingNext] = useState(false);
@@ -40,7 +41,7 @@ function PoolManagement({
   return (
     <div>
       <Box
-        className="mb-3"
+        className="mb-4"
         sx={{ borderRadius: 1 }}
       >
         {numPools > 0 && (
@@ -52,9 +53,11 @@ function PoolManagement({
             onClick={async () => {
               if (poolNum > 0) {
                 setLoadingPrev(true);
+                setIsLoading(true);
                 setPoolNum(poolNum - 1);
                 setTimeout(() => {
                   setLoadingPrev(false);
+                  setIsLoading(false);
                 }, 1000);
               }
             }}
@@ -65,7 +68,7 @@ function PoolManagement({
           </Button>
 
             <Typography color="secondary" align="center" variant="h6">
-              Pool #{poolNum}
+              Pool {poolNum}
             </Typography>
             
             <Button
@@ -74,9 +77,11 @@ function PoolManagement({
               onClick={async () => {
                 if (poolNum < numPools) {
                   setLoadingNext(true);
+                  setIsLoading(true);
                   setPoolNum(poolNum + 1);
                   setTimeout(() => {
                     setLoadingNext(false);
+                    setIsLoading(false);
                   }, 1000);
                 }
               }}
@@ -92,7 +97,8 @@ function PoolManagement({
       <Box 
         className="mb-3"
         sx={{
-          backgroundColor: '#202c4a',
+          // backgroundColor: '#40386b',
+          border: '1px solid #40386b',
           borderRadius: '4px',
           padding: '20px',
         }}

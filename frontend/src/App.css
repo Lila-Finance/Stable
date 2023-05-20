@@ -25,23 +25,23 @@
 }
 
 .supply-button {
-  background-image: linear-gradient(90deg, #5a189a, #c77dff);
+  background-image: linear-gradient(90deg, #9129fa, #c77dff);
   color: white !important;
 }
 
 .supply-button:hover {
   color: white !important;
-  background-image: linear-gradient(90deg, #c77dff, #5a189a);
+  background-image: linear-gradient(90deg, #c77dff, #9129fa);
 }
 
 .redeem-button {
-  background-image: linear-gradient(90deg, #5a189a, #c77dff);
+  background-image: linear-gradient(90deg, #9129fa, #c77dff);
   color: white !important;
 }
 
 .redeem-button:hover {
   color: white !important;
-  background-image: linear-gradient(90deg, #c77dff, #5a189a);
+  background-image: linear-gradient(90deg, #c77dff, #9129fa);
 }
 
 .redeem-button:disabled {

@@ -17,18 +17,18 @@ function FixedNFTData({ rate, poolContract, refreshKey }) {
   }, [poolContract, refreshKey]);
 
   return (
-    <Card sx={{ minHeight: '150px', backgroundColor: "#e6d7ff" }}>
+    <Card className="mb-4" sx={{ minHeight: '150px', backgroundColor: "#40386b" }}>
       <CardContent>
-        <Typography variant="h5" fontWeight="bold">
+        <Typography color="secondary"  variant="h5" fontWeight="bold">
           Fixed Pool
         </Typography>
-        <Typography variant="body1">
+        <Typography color="secondary" variant="body1">
           Supply: {ethers.utils.formatEther(fixedSupply)} DAI
         </Typography>
-        <Typography variant="body1">
+        <Typography color="secondary" variant="body1">
           Limit: {ethers.utils.formatEther(limit)} DAI
         </Typography>
-        <Typography variant="body1">
+        <Typography color="secondary" variant="body1">
           Interest Rate: {ethers.utils.formatEther(rate)}%
         </Typography>
       </CardContent>
