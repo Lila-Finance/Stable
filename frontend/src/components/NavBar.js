@@ -12,9 +12,11 @@ import {
 import logo from "../images/logo.png";
 import "../App.css";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useTheme } from '@mui/system';
 
 function NavBar({ onDeveloperModeChange }) {
   const [developerMode, setDeveloperMode] = useState(false);
+  const theme = useTheme();
 
   const handleDeveloperModeChange = (event) => {
     setDeveloperMode(event.target.checked);
@@ -22,7 +24,7 @@ function NavBar({ onDeveloperModeChange }) {
   };
 
   return (
-    <AppBar position="static" sx={{ background: "#f8f9fa" }} elevation={0}>
+    <AppBar position="static" sx={{ background: theme.palette.background.default }} elevation={0}>
       <Toolbar
         sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}
       >
@@ -34,13 +36,13 @@ function NavBar({ onDeveloperModeChange }) {
           />
         </IconButton>
         <Button
-          color="inherit"
+          color="secondary"
           href="https://lila-finance.gitbook.io/lila-documentation/"
         >
           Documentation
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        <Typography
+        {/* <Typography
           variant="h5"
           component="div"
           sx={{
@@ -50,7 +52,7 @@ function NavBar({ onDeveloperModeChange }) {
           }}
         >
           View/Claim Holdings
-        </Typography>
+        </Typography> */}
         <Box sx={{ flexGrow: 1 }} />
         <ConnectButton />
       </Toolbar>

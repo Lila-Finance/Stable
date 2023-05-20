@@ -43,13 +43,13 @@ const signer = provider.getSigner();
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#9c88ff", // #D3BAFB
+      main: "#9c88ff",
     },
     secondary: {
       main: "#e6d7ff",
     },
     background: {
-      default: "#f8f9fa",
+      default: "#04070E",
     },
   },
 });
@@ -154,9 +154,6 @@ function App() {
               marginBottom: 2,
             }}
           >
-            {/* The platform that allows you to choose{" "}
-            <span className="gradient-text">FIXED</span> or{" "}
-            <span className="gradient-text">VARIABLE</span> yields */}
             Interest Rate Swap
           </Typography>
         </Box>
