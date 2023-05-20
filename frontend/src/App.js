@@ -32,6 +32,9 @@ import FixedNFTAbi from "./abi/FixedNFT.json";
 import VariableNFTAbi from "./abi/VariableNFT.json";
 import PoolAbi from "./abi/Pool.json";
 import { useAccount } from "wagmi";
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+
 
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
@@ -126,23 +129,25 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
+      <Alert
+        variant="outlined"
+        severity="info"
         sx={{
-          backgroundColor: "secondary.light",
-          borderRadius: 1,
-          padding: 2,
-          marginBottom: 3,
+          borderColor: 'transparent',
+          '& .MuiAlert-icon': {
+            color: '#9c88ff',
+          },
+          color: '#9c88ff',
         }}
       >
-        <Typography variant="body1" component="div">
-          Welcome to our alpha stage app! Your positions are minted as NFTs, and
-          this app is currently on the Polygon mainnet and yield is generated
-          through Aave. You need DAI on Polygon to test this app.
-        </Typography>
-      </Box>
+        <AlertTitle>Welcome to our alpha stage app!</AlertTitle>
+        Your positions are minted as NFTs, and
+        this app is currently on the Polygon mainnet and yield is generated
+        through Aave. You need DAI on Polygon to test this app.
+      </Alert>
       <NavBar onDeveloperModeChange={setDeveloperMode} />
       <Container>
-        <Box mt={10} mb={6}>
+        <Box mt={10} mb={9}>
           <Typography
             variant="h2"
             component="div"
@@ -171,7 +176,7 @@ function App() {
             <Grid container spacing={5}>
               <Grid item xs={6}>
                 <Card
-                  sx={{ boxShadow: "0 0 100px 5px rgba(156, 136, 255, 0.5)" }}
+                  sx={{ backgroundColor: "#202c4a" }}
                 >
                   <CardContent>
                     <Box marginBottom={5}>
@@ -199,7 +204,7 @@ function App() {
               </Grid>
               <Grid item xs={6}>
                 <Card
-                  sx={{ boxShadow: "0 0 100px 5px rgba(156, 136, 255, 0.5)" }}
+                  sx={{ backgroundColor: "#202c4a" }}
                 >
                   <CardContent>
                     <Box marginBottom={5}>

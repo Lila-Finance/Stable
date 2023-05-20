@@ -13,6 +13,7 @@ import logo from "../images/logo.png";
 import "../App.css";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useTheme } from '@mui/system';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 function NavBar({ onDeveloperModeChange }) {
   const [developerMode, setDeveloperMode] = useState(false);
@@ -28,7 +29,7 @@ function NavBar({ onDeveloperModeChange }) {
       <Toolbar
         sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}
       >
-        <IconButton edge="start" color="inherit" aria-label="logo">
+        <IconButton className="mr-3" edge="start" color="inherit" aria-label="logo">
           <img
             src={logo}
             alt="Logo"
@@ -37,22 +38,13 @@ function NavBar({ onDeveloperModeChange }) {
         </IconButton>
         <Button
           color="secondary"
+          variant="outlined"
           href="https://lila-finance.gitbook.io/lila-documentation/"
+          startIcon={<MenuBookIcon />}
         >
           Documentation
         </Button>
         <Box sx={{ flexGrow: 1 }} />
-        {/* <Typography
-          variant="h5"
-          component="div"
-          sx={{
-            fontWeight: "bold",
-            textAlign: "center",
-            color: "#9c88ff",
-          }}
-        >
-          View/Claim Holdings
-        </Typography> */}
         <Box sx={{ flexGrow: 1 }} />
         <ConnectButton />
       </Toolbar>

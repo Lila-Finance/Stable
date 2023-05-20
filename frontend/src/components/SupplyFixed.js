@@ -57,7 +57,7 @@ function SupplyFixed({ address, poolContract }) {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
+      <Typography color="secondary" variant="h4" fontWeight="bold" mb={3}>
         Supply Fixed
       </Typography>
       {error && (

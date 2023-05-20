@@ -58,7 +58,7 @@ function SupplyVariable({ address, poolContract }) {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
+      <Typography color="secondary" variant="h4" fontWeight="bold" mb={3}>
         Supply Variable
       </Typography>
       {error && (

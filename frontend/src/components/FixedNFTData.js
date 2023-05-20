@@ -17,7 +17,7 @@ function FixedNFTData({ rate, poolContract, refreshKey }) {
   }, [poolContract, refreshKey]);
 
   return (
-    <Card sx={{ backgroundColor: "#e6d7ff" }}>
+    <Card sx={{ minHeight: '150px', backgroundColor: "#e6d7ff" }}>
       <CardContent>
         <Typography variant="h5" fontWeight="bold">
           Fixed Pool
