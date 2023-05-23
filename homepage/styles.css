@@ -99,3 +99,9 @@ button {
 
 .no-link {
   text-decoration: none; }
+
+.warning {
+  display: flex;
+  justify-content: center;
+  color: white;
+}
