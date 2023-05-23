@@ -32,6 +32,9 @@ import FixedNFTAbi from "./abi/FixedNFT.json";
 import VariableNFTAbi from "./abi/VariableNFT.json";
 import PoolAbi from "./abi/Pool.json";
 import { useAccount } from "wagmi";
+import Alert from "@mui/material/Alert";
+import AlertTitle from "@mui/material/AlertTitle";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
@@ -43,13 +46,13 @@ const signer = provider.getSigner();
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#9c88ff", // #D3BAFB
+      main: "#9c88ff",
     },
     secondary: {
       main: "#e6d7ff",
     },
     background: {
-      default: "#f8f9fa",
+      default: "#04070E",
     },
   },
 });
@@ -71,6 +74,7 @@ function App() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [developerMode, setDeveloperMode] = useState(false);
   const { address, isConnecting, isDisconnected } = useAccount();
+  const [loading, setLoading] = useState(false);
 
   const handleRefresh = () => {
     setRefreshKey((prevKey) => prevKey + 1);
@@ -126,24 +130,25 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
+      <Alert
+        variant="outlined"
+        severity="info"
         sx={{
-          backgroundColor: "secondary.light",
-          borderRadius: 1,
-          padding: 2,
-          marginBottom: 3,
+          borderColor: "transparent",
+          "& .MuiAlert-icon": {
+            color: "#9c88ff",
+          },
+          color: "#9c88ff",
         }}
       >
-        <Typography variant="body1" component="div">
-          Welcome to our alpha stage app! Your positions are minted as NFTs, and
-          this app is currently on the Polygon mainnet. Yield is generated
-          through Aave with varying rates. You need DAI on Polygon to test this
-          app.
-        </Typography>
-      </Box>
+        <AlertTitle>Welcome to our alpha stage app!</AlertTitle>
+        Your positions are minted as NFTs, and this app is currently on the
+        Polygon mainnet and yield is generated through Aave. You need DAI on
+        Polygon to test this app.
+      </Alert>
       <NavBar onDeveloperModeChange={setDeveloperMode} />
       <Container>
-        <Box mt={10} mb={6}>
+        <Box mt={10} mb={9}>
           <Typography
             variant="h2"
             component="div"
@@ -155,14 +160,11 @@ function App() {
               marginBottom: 2,
             }}
           >
-            {/* The platform that allows you to choose{" "}
-            <span className="gradient-text">FIXED</span> or{" "}
-            <span className="gradient-text">VARIABLE</span> yields */}
             Interest Rate Swap
           </Typography>
         </Box>
         {poolContract ? (
-          <div>
+          <Box position="relative">
             <PoolManagement
               poolContract={poolContract}
               timeSinceStart={timeSinceStart}
@@ -171,26 +173,25 @@ function App() {
               setPoolNum={setPoolNum}
               poolNum={poolNum}
               handleRefresh={handleRefresh}
+              setIsLoading={setLoading}
             />
             <Grid container spacing={5}>
               <Grid item xs={6}>
-                <Card
-                  sx={{ boxShadow: "0 0 100px 5px rgba(156, 136, 255, 0.5)" }}
-                >
+                <FixedNFTData
+                  poolContract={poolContract}
+                  rate={fixedRate}
+                  refreshKey={refreshKey}
+                />
+                <Card className="mb-4" sx={{ backgroundColor: "#40386b" }}>
                   <CardContent>
-                    <Box marginBottom={5}>
-                      <FixedNFTData
-                        poolContract={poolContract}
-                        rate={fixedRate}
-                        refreshKey={refreshKey}
-                      />
-                    </Box>
-                    <Box marginBottom={5}>
-                      <SupplyFixed
-                        address={address}
-                        poolContract={poolContract}
-                      />
-                    </Box>
+                    <SupplyFixed
+                      address={address}
+                      poolContract={poolContract}
+                    />
+                  </CardContent>
+                </Card>
+                <Card className="mb-4" sx={{ backgroundColor: "#40386b" }}>
+                  <CardContent>
                     <FixedNFTs
                       address={address}
                       rate={fixedRate}
@@ -202,23 +203,21 @@ function App() {
                 </Card>
               </Grid>
               <Grid item xs={6}>
-                <Card
-                  sx={{ boxShadow: "0 0 100px 5px rgba(156, 136, 255, 0.5)" }}
-                >
+                <VariableNFTData
+                  poolContract={poolContract}
+                  rate={variableRate}
+                  refreshKey={refreshKey}
+                />
+                <Card className="mb-4" sx={{ backgroundColor: "#40386b" }}>
                   <CardContent>
-                    <Box marginBottom={5}>
-                      <VariableNFTData
-                        poolContract={poolContract}
-                        rate={variableRate}
-                        refreshKey={refreshKey}
-                      />
-                    </Box>
-                    <Box marginBottom={5}>
-                      <SupplyVariable
-                        address={address}
-                        poolContract={poolContract}
-                      />
-                    </Box>
+                    <SupplyVariable
+                      address={address}
+                      poolContract={poolContract}
+                    />
+                  </CardContent>
+                </Card>
+                <Card className="mb-4" sx={{ backgroundColor: "#40386b" }}>
+                  <CardContent>
                     <VariableNFTs
                       address={address}
                       rate={variableRate}
@@ -230,7 +229,22 @@ function App() {
                 </Card>
               </Grid>
             </Grid>
-          </div>
+            {loading && (
+              <Box
+                position="absolute"
+                top={0}
+                right={0}
+                bottom={0}
+                left={0}
+                bgcolor="rgba(0,0,0,0.5)"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+              >
+                <CircularProgress color="primary" />
+              </Box>
+            )}
+          </Box>
         ) : (
           <Container>
             <Box mt={10} mb={6}>

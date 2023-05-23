@@ -58,7 +58,7 @@ function SupplyVariable({ address, poolContract }) {
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold" mb={3}>
+      <Typography color="secondary" variant="h4" fontWeight="bold" mb={3}>
         Supply Variable
       </Typography>
       {error && (
@@ -68,10 +68,17 @@ function SupplyVariable({ address, poolContract }) {
       )}
       <Box mb={2}>
         <TextField
+          color="secondary"
           label="Amount"
           type="number"
-          inputProps={{ step: "0.0001" }}
+          inputProps={{ 
+            step: "0.0001",
+            style: { color: "#ffffff" }
+          }}
+          FormHelperTextProps={{ style: { color: "#ffffff" } }}
           value={amount}
+          focused
+          helperText="Make sure you have DAI on Polygon"
           onChange={(e) => {
             setAmount(e.target.value);
             setMax(null);

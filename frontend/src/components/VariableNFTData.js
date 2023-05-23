@@ -17,15 +17,15 @@ function VariableNFTData({ rate, poolContract, refreshKey }) {
   }, [poolContract, refreshKey]);
 
   return (
-    <Card sx={{ backgroundColor: "#e6d7ff" }}>
+    <Card className="mb-4" sx={{ minHeight: '150px', backgroundColor: "#40386b" }}>
       <CardContent>
-        <Typography variant="h5" fontWeight="bold">
+        <Typography color="secondary" variant="h5" fontWeight="bold">
           Variable Pool
         </Typography>
-        <Typography variant="body1">
+        <Typography color="secondary" variant="body1">
           Supply: {ethers.utils.formatEther(variableSupply)} DAI
         </Typography>
-        <Typography variant="body1">
+        <Typography color="secondary" variant="body1">
           Limit: {ethers.utils.formatEther(limit)} DAI
         </Typography>
         {/*Since it is wrong

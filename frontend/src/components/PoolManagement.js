@@ -5,9 +5,14 @@ import Faucet from "./Faucet";
 import AccessTimeFilledIcon from "@mui/icons-material/AccessTimeFilled";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { tokenContract } from "./Provider";
-import React from "react";
+import React, {useState} from "react";
 import { Box, Button, Typography, Grid, ButtonBase } from "@mui/material";
 import { poolDeployerContract } from "./Provider";
+import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import LockIcon from '@mui/icons-material/Lock';
+import CircularProgress from "@mui/material/CircularProgress";
 
 function PoolManagement({
   poolContract,
@@ -17,7 +22,12 @@ function PoolManagement({
   setPoolNum,
   poolNum,
   handleRefresh,
+  setIsLoading,
 }) {
+  const [loadingPrev, setLoadingPrev] = useState(false);
+  const [loadingNext, setLoadingNext] = useState(false);
+  const [loadingRefresh, setLoadingRefresh] = useState(false);
+
   const deletePool = async () => {
     try {
       const poolAddress = poolContract.address;
@@ -31,58 +41,101 @@ function PoolManagement({
   return (
     <div>
       <Box
-        className="mb-3"
-        sx={{
-          borderRadius: 1,
-          padding: 2,
-        }}
+        className="mb-4"
+        sx={{ borderRadius: 1 }}
       >
         {numPools > 0 && (
           <>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={async () => {
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', marginBottom: 1 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={async () => {
+              if (poolNum > 0) {
+                setLoadingPrev(true);
+                setIsLoading(true);
                 setPoolNum(poolNum - 1);
-              }}
-              sx={{ marginRight: 1 }}
-            >
-              Prev Pool
-            </Button>
+                setTimeout(() => {
+                  setLoadingPrev(false);
+                  setIsLoading(false);
+                }, 1000);
+              }
+            }}
+            sx={{ marginRight: 1 }}
+            startIcon={loadingPrev ? <CircularProgress size={24} /> : <KeyboardArrowLeftIcon />}
+          >
+            Prev Pool
+          </Button>
+
+            <Typography color="secondary" align="center" variant="h6">
+              Pool {poolNum}
+            </Typography>
+            
             <Button
-              variant="contained"
-              color="primary"
+              variant="outlined"
+              color="secondary"
               onClick={async () => {
-                setPoolNum(poolNum + 1);
+                if (poolNum < numPools) {
+                  setLoadingNext(true);
+                  setIsLoading(true);
+                  setPoolNum(poolNum + 1);
+                  setTimeout(() => {
+                    setLoadingNext(false);
+                    setIsLoading(false);
+                  }, 1000);
+                }
               }}
               sx={{ marginRight: 1 }}
+              endIcon={loadingNext ? <CircularProgress size={24} /> : <KeyboardArrowRightIcon />}
             >
               Next Pool
             </Button>
-            <Button
-              className="refresh-button"
-              variant="contained"
-              color="primary"
-              onClick={handleRefresh}
-            >
-              Refresh Contracts
-            </Button>
+            </Box>
           </>
         )}
       </Box>
-      <Box className="mb-3">
+      <Box 
+        className="mb-3"
+        sx={{
+          // backgroundColor: '#40386b',
+          border: '1px solid #40386b',
+          borderRadius: '4px',
+          padding: '20px',
+        }}
+      >
         <Box display="flex" alignItems="center">
-          <MonetizationOnIcon sx={{ marginRight: 1 }} />
-          <Typography variant="h6">
+          <MonetizationOnIcon color="secondary" sx={{ marginRight: 1 }} />
+          <Typography variant="h6" color="secondary">
             Import DAI Contract: {tokenContract.address}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center">
-          <AccessTimeFilledIcon sx={{ marginRight: 1 }} />
-          <Typography variant="h6">
-            Time Since Start: {timeSinceStart}, lockDuration: {lockDuration}
+          <AccessTimeFilledIcon color="secondary" sx={{ marginRight: 1 }} />
+          <Typography variant="h6" color="secondary">
+            Time Since Start: {timeSinceStart}
           </Typography>
         </Box>
+        <Box className="mb-2" display="flex" alignItems="center">
+          <LockIcon color="secondary" sx={{ marginRight: 1 }} />
+          <Typography variant="h6" color="secondary">
+            Lock Duration: {lockDuration}
+          </Typography>
+        </Box>
+        <Button
+          className="refresh-button"
+          variant="outlined"
+          color="secondary"
+          onClick={async () => {
+            setLoadingRefresh(true);
+            handleRefresh();
+            setTimeout(() => {
+              setLoadingRefresh(false);
+            }, 1000);
+          }}
+          startIcon={loadingRefresh ? <CircularProgress size={24} /> : <RefreshIcon />}
+        >
+          Refresh Contracts
+        </Button>
       </Box>
     </div>
   );
