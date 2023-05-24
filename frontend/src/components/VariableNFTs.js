@@ -103,7 +103,7 @@ function VariableNFTs({
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold">
+      <Typography color="secondary" variant="h4" fontWeight="bold">
         My Variable NFTs
       </Typography>
       {variableNFTs.map((variableNFT) => (

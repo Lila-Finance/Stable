@@ -116,7 +116,7 @@ function FixedNFTs({
 
   return (
     <Box>
-      <Typography variant="h4" fontWeight="bold">
+      <Typography color="secondary" variant="h4" fontWeight="bold">
         My Fixed NFTs
       </Typography>
       {fixedNFTs.map((fixedNFT) => (
