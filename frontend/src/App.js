@@ -144,8 +144,9 @@ function App() {
       >
         <AlertTitle>Welcome to our alpha stage app!</AlertTitle>
         Your positions are minted as NFTs, and
-        this app is currently on the Polygon mainnet and yield is generated
-        through Aave. You need DAI on Polygon to test this app.
+        this app is currently on the Polygon mainnet. Yield is generated
+        through Aave with varying rates. You need DAI on Polygon to test this
+        app.
       </Alert>
       <NavBar onDeveloperModeChange={setDeveloperMode} />
       <Container>
