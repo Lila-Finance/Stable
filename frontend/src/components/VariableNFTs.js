@@ -39,6 +39,8 @@ function VariableNFTs({
           const interest = await poolContract.calculateInterestVariable(
             nftIdNumber
           );
+          console.log("interest", interest.toString());
+
           myVariableNFTs.push({
             tokenId: nftIdNumber,
             value: ethers.utils.formatEther(depositData["amount"]),

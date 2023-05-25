@@ -5,8 +5,12 @@ import { sendParams, poolDeployerContract, tokenContract } from "./Provider";
 import { Typography, Box, Button, TextField, Grid } from "@mui/material";
 import addresses from "../addresses/addresses.json";
 
-const { DAI_ADDRESS, AAVE_ADDRESSES_PROVIDER, POOL_DEPLOYER_ADDRESS } =
-  addresses;
+const {
+  DAI_ADDRESS,
+  AAVE_ADDRESSES_PROVIDER,
+  POOL_DEPLOYER_ADDRESS,
+  POOL_LOGIC_ADDRESS,
+} = addresses;
 
 const CreatePool = () => {
   const [status, setStatus] = useState("");
@@ -30,7 +34,8 @@ const CreatePool = () => {
         DAI_ADDRESS,
         fixedPoolLimitParsed,
         lockDuration,
-        interestRate
+        interestRate,
+        POOL_LOGIC_ADDRESS
       );
       await createPoolTx.wait();
 

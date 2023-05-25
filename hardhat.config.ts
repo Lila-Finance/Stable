@@ -1,7 +1,9 @@
 import { HardhatUserConfig } from "hardhat/types";
 
+require("@nomiclabs/hardhat-ethers");
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomiclabs/hardhat-etherscan");
+require("@openzeppelin/hardhat-upgrades");
 require("dotenv").config();
 
 const INFURA_API_KEY = process.env.INFURA_API_KEY;

@@ -15,9 +15,10 @@ contract PoolDeployer {
         address _daiAddress,
         uint256 _fixedPoolLimit,
         uint256 _lockDuration,
-        uint256 _interestRate
+        uint256 _interestRate,
+        address _poolLogic
     ) public {
-        Pool newPool = new Pool(_aaveAddresses, _daiAddress, _fixedPoolLimit, _lockDuration, _interestRate);
+        Pool newPool = new Pool(_aaveAddresses, _daiAddress, _fixedPoolLimit, _lockDuration, _interestRate, _poolLogic);
 
         pools.push(PoolInfo({
             pool: newPool
@@ -37,7 +38,7 @@ contract PoolDeployer {
     }
 
     function getPoolLength() public view returns (uint256) {
-    return pools.length;
-}
+        return pools.length;
+    }
 
 }

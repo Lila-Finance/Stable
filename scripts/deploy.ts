@@ -1,6 +1,6 @@
 // scripts/deploy.ts
 //@ts-ignore
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import fs from "fs";
 import path from "path";
 
@@ -13,6 +13,11 @@ async function main() {
   await poolDeployer.deployed();
   console.log("PoolDeployer deployed to:", poolDeployer.address);
 
+  const PoolLogicFactory = await ethers.getContractFactory("PoolLogic");
+  const poolLogic = await upgrades.deployProxy(PoolLogicFactory);
+  await poolLogic.deployed();
+  console.log("PoolLogic deployed to:", poolLogic.address);
+
   // Copy ABIs to frontend
   const abiDir = path.join(__dirname, "../frontend/src/abi");
   if (!fs.existsSync(abiDir)) {
@@ -24,6 +29,7 @@ async function main() {
     "Pool",
     "FixedNFT",
     "VariableNFT",
+    "PoolLogic",
   ]) {
     fs.copyFile(
       path.join(
@@ -43,6 +49,7 @@ async function main() {
     POOL_DEPLOYER_ADDRESS: poolDeployer.address,
     DAI_ADDRESS,
     AAVE_ADDRESSES_PROVIDER,
+    POOL_LOGIC_ADDRESS: poolLogic.address,
   };
   const addressDir = path.join(__dirname, "../frontend/src/addresses");
   if (!fs.existsSync(addressDir)) {

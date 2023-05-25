@@ -5,6 +5,7 @@ import { Card, CardContent, Typography } from "@mui/material";
 function FixedNFTData({ rate, poolContract, refreshKey }) {
   const [fixedSupply, setFixedSupply] = useState(0);
   const [limit, setLimit] = useState(0);
+  const [totalSupply, setTotalSupply] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -12,6 +13,8 @@ function FixedNFTData({ rate, poolContract, refreshKey }) {
       setFixedSupply(fixedSupply);
       let limit = await poolContract.fixedPoolLimit();
       setLimit(limit);
+      let totalSupply = await poolContract.getTotalSupply();
+      setTotalSupply(totalSupply);
     }
     fetchData();
   }, [poolContract, refreshKey]);
@@ -27,6 +30,9 @@ function FixedNFTData({ rate, poolContract, refreshKey }) {
         </Typography>
         <Typography variant="body1">
           Limit: {ethers.utils.formatEther(limit)} TKN
+        </Typography>
+        <Typography variant="body1">
+          Total Supply: {ethers.utils.formatEther(totalSupply)} TKN
         </Typography>
         <Typography variant="body1">
           Interest Rate: {ethers.utils.formatEther(rate)}%
