@@ -11,11 +11,13 @@ contract PoolLogic {
         uint256 blocktime;
         uint256 lockDuration;
         bool poolStopped;
+        uint256 poolDeployTime;
+        uint256 totalTimeWeight;
+        uint256 interestRate;
     }
     
     function calculateInterestFixedParts(
         FixedNFT.DepositData memory depositData,
-        uint256 interestRate,
         Times memory times,
         uint256 prevMaxSupply,
         uint256 totalDepositedFixed,
@@ -28,18 +30,17 @@ contract PoolLogic {
         } else {
             timeToStart = times.poolStartTime - depositData.depositTime;
         }
-        uint256 startinterest = calculateInterest(depositData.amount, interestRate, timeToStart);
+        uint256 totalInterestStart = zeroed(prevMaxSupply, totalDepositedFixed);
+        uint256 totalTimeWeight = totalDepositedFixed * (times.blocktime - times.poolDeployTime) - times.totalTimeWeight;
+        uint256 startinterest = (totalInterestStart * timeToStart * depositData.amount) / (totalTimeWeight);
         if (times.poolStopped){
             return (startinterest + depositData.amount, 0);
-        }
-        if(startinterest > zeroed(prevMaxSupply, totalDepositedFixed)){
-            startinterest = 0;
         }
 
         uint256 midinterest = 0;
         if(times.poolStartTime > 0){
             uint256 timeLocked = timeSinceStart(times.poolStartTime, times.blocktime, times.lockDuration);
-            midinterest += calculateInterest(depositData.amount, interestRate, timeLocked);
+            midinterest += calculateInterest(depositData.amount, times.interestRate, timeLocked);
             if(times.blocktime >= times.poolStartTime + times.lockDuration){
                 startinterest += depositData.amount;
             }
@@ -85,15 +86,12 @@ contract PoolLogic {
         uint256 _blocktime
     ) public pure returns (int256, int256) {
         int256 variableInterestRate = int256(_interestRate);
-        if (_poolStartTime > 0 && _blocktime > _poolStartTime + 1 days) {
+        if (_poolStartTime > 0 && _blocktime > _poolStartTime) {
             uint256 totalValue = zeroed(_totalSupply + _totalClaimedVariable + _totalClaimedFixedPrev, _prevMaxSupply);
             uint256 time = timeSinceStart(_poolStartTime, _blocktime, _lockDuration);
-            uint256 expectedValue = _variablePoolLimit * (time / _lockDuration);
+            uint256 expectedValue = (_variablePoolLimit * time) / _lockDuration;
             int256 totalSub = int256(totalValue) - int256(expectedValue);
-            if (time == 0 || _variablePoolLimit == 0) {
-                return (int256(_interestRate), 0);
-            }
-            variableInterestRate = 1e19 * (365 days) * totalSub / int256(time * _variablePoolLimit);
+            variableInterestRate = (1e19 * (365 days) * totalSub) / int256(time * _variablePoolLimit);
         }
         return (int256(_interestRate), variableInterestRate);
     }

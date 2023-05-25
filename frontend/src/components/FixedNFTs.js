@@ -39,6 +39,10 @@ function FixedNFTs({
           const interest = await poolContract.calculateInterestFixed(
             nftIdNumber
           );
+          const interestParts = await poolContract.calculateInterestFixedParts(
+            nftIdNumber
+          );
+          console.log(interestParts.map((x) => ethers.utils.formatEther(x)));
           myFixedNFTs.push({
             tokenId: nftIdNumber,
             value: ethers.utils.formatEther(depositData["amount"]),
