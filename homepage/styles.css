@@ -1,40 +1,142 @@
 body {
-  background-color: #292b2c;
+  background-image: url('background.png');
+  background-size: cover;
   overflow: hidden;
-  font-family: "DM Sans", sans-serif;
+  font-family: "Roboto", sans-serif;
   font-style: normal;
   height: 100%;
-  width: 100%; }
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #ffffff;
+}
+
+
+.main-content {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10%;
+}
+
+.left-section {
+  width: 50%;
+}
+
+.right-section {
+  width: 50%;
+}
+
+.title {
+  font-size: 60px;
+  font-weight: bold;
+}
+
+.description {
+  font-size: 2em;
+  font-weight: 400;
+}
+
+.enter-app {
+  border-radius: 20px;
+  display: inline-block;
+  border: 2px solid #ffffff;
+  padding: 10px 20px;
+  font-size: 2em;
+  color: #ffffff;
+  text-align: center;
+  margin-top: 30px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.enter-app:hover {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.warning {
+  font-size: 1.5em;
+  margin-top: 20px;
+}
+
+.right-section img {
+  width: 100%;
+  height: auto;
+}
 
 nav {
   position: fixed;
   top: 0;
-  background-color: #292b2c;
   right: 0;
   width: 100%;
+  height: 100px; /* increased height of nav */
   display: flex;
-  justify-content: flex-end;
-  align-items: center; }
+  justify-content: space-between;
+  align-items: flex-end; /* items stick to the bottom of nav */
+}
 
 .nav-links {
+  font-size: 1em;
   list-style: none;
   display: flex;
-  margin-right: 3em; }
+  justify-content: space-between;
+  width: 100%;
+  align-items: center; /* center items vertically */
+}
 
 .nav-links li {
-  margin: 0 1em; }
+  margin: 0 1em;
+}
 
 .nav-links li a {
   font-size: 1em;
   text-align: center;
   color: #ffffff;
-  text-decoration: none; }
+  text-decoration: none;
+}
+
+.logo {
+  color: rgba(119,119,195,1);
+  font-family: Jacques Francois;
+  font-weight: Regular;
+  font-size: 60px;
+  opacity: 1;
+  text-align: left;
+}
+
+.nav-links .center {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.nav-links .right {
+  flex-grow: 1;
+  text-align: right;
+}
+
+.nav-links .right .launch-app {
+  padding: 10px;
+  border: 1px solid #ffffff;
+  border-radius: 15px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.nav-links .right .launch-app:hover {
+  background-color: #ffffff;
+  color: #292b2c;
+}
 
 .nav-links li a:hover {
-  color: #ff6b6b; }
+  color: #ff6b6b;
+}
 
 #socials {
-  margin-right: 3em; }
+  margin-right: 3em;
+}
 
 .container {
   justify-content: center;
