@@ -47,3 +47,14 @@
 .redeem-button:disabled {
   background-image: none;
 }
+
+.logo-text {
+  text-align: left;
+  white-space: pre-wrap;
+  font-synthesis: none;
+  color: rgba(120, 120, 195, 1);
+  font-style: normal;
+  font-family: Roboto;
+  font-weight: 700;
+  font-size: 40px;
+}

@@ -12,6 +12,7 @@ import CreatePool from "./components/CreatePool";
 import DeletePool from "./components/DeletePool";
 import FastForward from "./components/FastForward";
 import PoolManagement from "./components/PoolManagement";
+import PoolCard from "./components/PoolCard";
 import {
   Box,
   Button,
@@ -52,7 +53,7 @@ const theme = createTheme({
       main: "#e6d7ff",
     },
     background: {
-      default: "#04070E",
+      default: "#FFFDFF",
     },
   },
 });
@@ -129,7 +130,13 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
+      <CssBaseline
+        sx={{
+          'body': {
+            backgroundImage: `linear-gradient(0deg, rgba(235, 239, 255, 1) 20.833335500350913%, rgba(255, 253, 255, 1) 100.00000266372291%)`,
+          },
+        }}
+      />
       <Alert
         variant="outlined"
         severity="info"
@@ -148,22 +155,18 @@ function App() {
       </Alert>
       <NavBar onDeveloperModeChange={setDeveloperMode} />
       <Container>
-        <Box mt={10} mb={9}>
-          <Typography
-            variant="h2"
-            component="div"
-            align="center"
-            sx={{
-              fontWeight: "bold",
-              color: "primary.main",
-              marginTop: 2,
-              marginBottom: 2,
-            }}
-          >
-            Interest Rate Swap
-          </Typography>
-        </Box>
-        {poolContract ? (
+        <Grid container spacing={7} justifyContent="center" alignItems="center" mt={4}>
+          <Grid item xs={4}>
+            <PoolCard status={"expired"}/>
+          </Grid>
+          <Grid item xs={4}>
+            <PoolCard status={"inprogress"}/>
+          </Grid>
+          <Grid item xs={4}>
+            <PoolCard status={"done"}/>
+          </Grid>
+        </Grid>
+        {/* {poolContract ? (
           <Box position="relative">
             <PoolManagement
               poolContract={poolContract}
@@ -263,7 +266,7 @@ function App() {
               </Typography>
             </Box>
           </Container>
-        )}
+        )} */}
       </Container>
     </ThemeProvider>
   );
