@@ -1,12 +1,74 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, Typography, Divider, TextField, Button, Table, TableBody, TableCell, TableRow, InputAdornment } from '@mui/material';
+import { 
+  Card, 
+  CardContent, 
+  Typography, 
+  Divider, 
+  TextField, 
+  Button, 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableRow, 
+  InputAdornment,
+  Alert,
+  CircularProgress, 
+} from '@mui/material';
 import redEllipse from '../images/red_ellipse.png';
 import yellowEllipse from '../images/yellow_ellipse.png';
 import greenEllipse from '../images/green_ellipse.png';
+import { approveSpend, sendParams } from "./Provider";
+import { ethers } from "ethers";
 
-const PoolCard = ({ status, amount, setAmount,  }) => {
+const PoolCard = ({ status, address, poolContract }) => {
   const [poolStatus, setPoolStatus] = useState(null);
+  // TODO: change days
   const [days, setDays] = useState(7);
+  const [max, setMax] = useState(null);
+  // state from supplyFixed.js
+  const [amount, setAmount] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // function from supplyFixed.js
+  const handleMaxClick = async () => {
+    let maxFixed = await poolContract.fixedPoolLimit();
+    let subFixed = await poolContract.totalDepositedFixed();
+
+    setMax(maxFixed.sub(subFixed));
+    //set ethers maxFixed
+    maxFixed = ethers.utils.formatEther(maxFixed);
+    subFixed = ethers.utils.formatEther(subFixed);
+    maxFixed = maxFixed - subFixed;
+    setAmount(maxFixed.toString());
+  };
+
+  // function from supplyFixed.js
+  const supplyFixed = async () => {
+    setIsLoading(true);
+    try {
+      let amountWei;
+      if (max) {
+        amountWei = ethers.BigNumber.from(max);
+        await approveSpend(
+          address,
+          ethers.utils.formatEther(amountWei),
+          poolContract
+        );
+      } else {
+        amountWei = await approveSpend(address, amount, poolContract);
+      }
+      setError(null);
+      const txResponse = await poolContract.depositFixed(amountWei, sendParams);
+      // Wait for the transaction to be mined
+      await txResponse.wait();
+    } catch (err) {
+      console.error(err);
+      setError("Insufficient balance");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     console.log('status: ', status);
@@ -134,6 +196,11 @@ const statusTable = () => {
           {statusTable()}
         </div>
         <Divider sx={{ bgcolor: '#FBFBEC', marginTop: '10px', marginBottom: '10px' }} />
+        {error && (
+          <Alert severity="error" onClose={() => setError(null)}>
+            {error}
+          </Alert>
+        )}
         <TextField
           fullWidth
           label="Amount"
@@ -166,8 +233,17 @@ const statusTable = () => {
             variant="contained" 
             style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
             sx={{ backgroundColor: '#99CEFF', color: '#FFFFFF', mr: '0.5px', borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+            disabled={isLoading}
+            onClick={supplyFixed}
           >
-            Supply Fixed
+            {isLoading ? (
+              <>
+                <CircularProgress size={24} />
+                <span style={{ marginLeft: "10px" }}>Transacting...</span>
+              </>
+            ) : (
+              'Supply Fixed'
+            )}
           </Button>
           <Button 
             variant="contained" 
