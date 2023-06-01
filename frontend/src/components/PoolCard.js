@@ -12,7 +12,9 @@ import {
   TableRow, 
   InputAdornment,
   Alert,
-  CircularProgress, 
+  CircularProgress,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import redEllipse from '../images/red_ellipse.png';
 import yellowEllipse from '../images/yellow_ellipse.png';
@@ -24,18 +26,22 @@ const PoolCard = ({ status, address, poolContract }) => {
   const [poolStatus, setPoolStatus] = useState(null);
   // TODO: change days
   const [days, setDays] = useState(7);
-  const [max, setMax] = useState(null);
+  // State to handle "Fix" and "Variable" toggle button
+  const [supplyType, setSupplyType] = useState('Variable');
   // state from supplyFixed.js
+  const [fixMax, setFixMax] = useState(null);
   const [amount, setAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  // state from supplyVariable.js
+  const [varMax, setVarMax] = useState(null);
 
   // function from supplyFixed.js
-  const handleMaxClick = async () => {
+  const handleFixMaxClick = async () => {
     let maxFixed = await poolContract.fixedPoolLimit();
     let subFixed = await poolContract.totalDepositedFixed();
 
-    setMax(maxFixed.sub(subFixed));
+    setFixMax(maxFixed.sub(subFixed));
     //set ethers maxFixed
     maxFixed = ethers.utils.formatEther(maxFixed);
     subFixed = ethers.utils.formatEther(subFixed);
@@ -43,13 +49,26 @@ const PoolCard = ({ status, address, poolContract }) => {
     setAmount(maxFixed.toString());
   };
 
+  // function from supplyVariable.js
+  const handleVarMaxClick = async () => {
+    let maxVariable = await poolContract.variablePoolLimit();
+    let subVariable = await poolContract.totalDepositedVariable();
+
+    setVarMax(maxVariable.sub(subVariable));
+    //set ethers maxVariable
+    maxVariable = ethers.utils.formatEther(maxVariable);
+    subVariable = ethers.utils.formatEther(subVariable);
+    maxVariable = maxVariable - subVariable;
+    setAmount(maxVariable.toString());
+  };
+
   // function from supplyFixed.js
   const supplyFixed = async () => {
     setIsLoading(true);
     try {
       let amountWei;
-      if (max) {
-        amountWei = ethers.BigNumber.from(max);
+      if (fixMax) {
+        amountWei = ethers.BigNumber.from(fixMax);
         await approveSpend(
           address,
           ethers.utils.formatEther(amountWei),
@@ -66,6 +85,33 @@ const PoolCard = ({ status, address, poolContract }) => {
       console.error(err);
       setError("Insufficient balance");
     } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const supplyVariable = async () => {
+    setIsLoading(true);
+    try {
+      let amountWei;
+      if (varMax) {
+        amountWei = ethers.BigNumber.from(varMax);
+        await approveSpend(
+          address,
+          ethers.utils.formatEther(amountWei),
+          poolContract
+        );
+      } else {
+        amountWei = await approveSpend(address, amount, poolContract);
+      }
+      setError(null);
+      const txResponse = await poolContract.depositVariable(amountWei, sendParams);
+      // Wait for the transaction to be mined
+      await txResponse.wait();
+    } catch (err) {
+      console.error(err);
+      setError("Insufficient balance");
+    } finally {
+      console.log("done transaction");
       setIsLoading(false);
     }
   };
@@ -192,10 +238,37 @@ const statusTable = () => {
           </TableBody>
         </Table>
         <Divider sx={{ bgcolor: '#FBFBEC', marginTop: '10px', marginBottom: '10px' }} />
-        <div style={{ height: '20%' }}>
-          {statusTable()}
-        </div>
+        {statusTable()}
         <Divider sx={{ bgcolor: '#FBFBEC', marginTop: '10px', marginBottom: '10px' }} />
+        <ToggleButtonGroup
+          size="small"
+          value={supplyType}
+          exclusive
+          onChange={(event, newValue) => setSupplyType(newValue)}
+          fullWidth
+          sx={{ marginBottom: '10px' }}
+        >
+          <ToggleButton
+            value="Fix"
+            style={{
+              width: '50%',
+              backgroundColor: supplyType === 'Fix' ? '#99CEFF' : '#FFFFFF',
+              color: supplyType === 'Fix' ? '#FFFFFF' : '#9C9CA6'
+            }}
+          >
+            Fix
+          </ToggleButton>
+          <ToggleButton
+            value="Variable"
+            style={{
+              width: '50%',
+              backgroundColor: supplyType === 'Variable' ? '#99CEFF' : '#FFFFFF',
+              color: supplyType === 'Variable' ? '#FFFFFF' : '#9C9CA6'
+            }}
+          >
+            Variable
+          </ToggleButton>
+        </ToggleButtonGroup>
         {error && (
           <Alert severity="error" onClose={() => setError(null)}>
             {error}
@@ -215,44 +288,37 @@ const statusTable = () => {
           helperText="Make sure you have DAI on Polygon"
           onChange={(e) => {
             setAmount(e.target.value);
-            setMax(null);
+            setFixMax(null);
+            setVarMax(null);
           }}
           InputProps={{
             style: { backgroundColor: '#FFFFFF' },
             endAdornment: (
               <InputAdornment position="end">
-                <Button size="small" onClick={handleMaxClick}>
+                <Button size="small" onClick={supplyType === 'Fix' ? handleFixMaxClick : handleVarMaxClick}>
                   Max
                 </Button>
               </InputAdornment>
             ),
           }}
         />
-        <div style={{ display: 'flex', marginTop: '5px' }}>
-          <Button 
-            variant="contained" 
-            style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
-            sx={{ backgroundColor: '#99CEFF', color: '#FFFFFF', mr: '0.5px', borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-            disabled={isLoading}
-            onClick={supplyFixed}
-          >
-            {isLoading ? (
-              <>
-                <CircularProgress size={24} />
-                <span style={{ marginLeft: "10px" }}>Transacting...</span>
-              </>
-            ) : (
-              'Supply Fixed'
-            )}
-          </Button>
-          <Button 
-            variant="contained" 
-            style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
-            sx={{ backgroundColor: '#99CEFF', color: '#FFFFFF', ml: '0.5px', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-          >
-            Supply Variable
-          </Button>
-        </div>
+        <Button 
+          variant="contained"
+          fullWidth={true}
+          style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
+          sx={{ marginTop:'10px', backgroundColor: '#99CEFF', color: '#FFFFFF' }}
+          disabled={isLoading}
+          onClick={supplyType === 'Fix' ? supplyFixed : supplyVariable}
+        >
+          {isLoading ? (
+            <>
+              <CircularProgress size={24} />
+              <span style={{ marginLeft: "10px" }}>Transacting...</span>
+            </>
+          ) : (
+            'Supply'
+          )}
+        </Button>
       </CardContent>
     </Card>
   );
