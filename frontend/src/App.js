@@ -157,13 +157,13 @@ function App() {
       <Container>
         <Grid container spacing={7} justifyContent="center" alignItems="center" mt={4}>
           <Grid item xs={4}>
-            <PoolCard status={"expired"}/>
+            <PoolCard status={"expired"} address={address} poolContract={poolContract}/>
           </Grid>
           <Grid item xs={4}>
-            <PoolCard status={"inprogress"}/>
+            <PoolCard status={"inprogress"} address={address} poolContract={poolContract}/>
           </Grid>
           <Grid item xs={4}>
-            <PoolCard status={"done"}/>
+            <PoolCard status={"done"} address={address} poolContract={poolContract}/>
           </Grid>
         </Grid>
         {/* {poolContract ? (

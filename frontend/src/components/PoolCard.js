@@ -64,6 +64,10 @@ const PoolCard = ({ status, address, poolContract }) => {
 
   // function from supplyFixed.js
   const supplyFixed = async () => {
+    if (poolContract === null) {
+      alert("Please connect your wallet first.");
+      return;
+    }
     setIsLoading(true);
     try {
       let amountWei;
@@ -90,6 +94,10 @@ const PoolCard = ({ status, address, poolContract }) => {
   };
 
   const supplyVariable = async () => {
+    if (poolContract === null) {
+      alert("Please connect your wallet first.");
+      return;
+    }
     setIsLoading(true);
     try {
       let amountWei;
