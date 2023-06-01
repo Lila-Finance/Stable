@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import React, { useState } from "react";
 import NavBar from "./components/NavBar";
 import PoolCard from "./components/PoolCard";
 import FixedNFTs from "./components/FixedNFTs";
 import VariableNFTs from "./components/VariableNFTs";
-import PoolManagement from "./components/PoolManagement";
 import {
   Container,
   Grid,
@@ -16,7 +14,8 @@ import "./App.css";
 import { useAccount } from "wagmi";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-
+import Positions from './Positions';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 const theme = createTheme({
   palette: {
@@ -37,32 +36,7 @@ function App() {
   const [developerMode, setDeveloperMode] = useState(false);
   const { address } = useAccount();
 
-  return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline
-        sx={{
-          'body': {
-            backgroundImage: `linear-gradient(0deg, rgba(235, 239, 255, 1) 20.833335500350913%, rgba(255, 253, 255, 1) 100.00000266372291%)`,
-          },
-        }}
-      />
-      <Alert
-        variant="outlined"
-        severity="info"
-        sx={{
-          borderColor: "transparent",
-          "& .MuiAlert-icon": {
-            color: "#9c88ff",
-          },
-          color: "#9c88ff",
-        }}
-      >
-        <AlertTitle>Welcome to our alpha stage app!</AlertTitle>
-        Your positions are minted as NFTs, and this app is currently on the
-        Polygon mainnet and yield is generated through Aave. You need DAI on
-        Polygon to test this app.
-      </Alert>
-      <NavBar onDeveloperModeChange={setDeveloperMode} />
+  const earn = () => (
       <Container>
           <Grid container spacing={7} justifyContent="center" alignItems="center" mt={4}>
             <Grid item xs={4}>
@@ -109,6 +83,34 @@ function App() {
             </Grid>
         )*/}
       </Container>
+  )
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Alert
+          variant="outlined"
+          severity="info"
+          sx={{
+            borderColor: "transparent",
+            "& .MuiAlert-icon": {
+              color: "#9c88ff",
+            },
+            color: "#9c88ff",
+          }}
+        >
+          <AlertTitle>Welcome to our alpha stage app!</AlertTitle>
+          Your positions are minted as NFTs, and this app is currently on the
+          Polygon mainnet and yield is generated through Aave. You need DAI on
+          Polygon to test this app.
+        </Alert>
+          <NavBar />
+          <Routes>
+              <Route path="/" element={earn()} />
+              <Route path="/earn" element={earn()} />
+              <Route path="/positions" element={<Positions />} />
+          </Routes>
+      </Router>
     </ThemeProvider>
   );
 }

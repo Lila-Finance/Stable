@@ -19,6 +19,8 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import Link from '@mui/material/Link';
 import { FaDiscord, FaGithub, FaTwitter } from "react-icons/fa";
 import MoreVertIcon from '@mui/icons-material/MoreVert'; // import for the dropdown icon
+import { Link as RouterLink } from 'react-router-dom';
+
 
 function NavBar({ onDeveloperModeChange }) {
   const [developerMode, setDeveloperMode] = useState(false);
@@ -46,8 +48,8 @@ function NavBar({ onDeveloperModeChange }) {
         sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}
       >
         <div className="logo-text">LILA Finance</div>
-        <Button sx={{color: `rgba(76, 76, 81, 1)`}}> Earn </Button>
-        <Button sx={{color: `rgba(76, 76, 81, 1)`}}> Positions </Button>
+        <Button component={RouterLink} to="/earn" sx={{color: `rgba(76, 76, 81, 1)`}}>Earn</Button>
+        <Button component={RouterLink} to="/positions" sx={{color: `rgba(76, 76, 81, 1)`}}>Positions</Button>
         <IconButton
           aria-label="more"
           aria-controls="long-menu"
