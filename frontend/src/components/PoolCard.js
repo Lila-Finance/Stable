@@ -355,7 +355,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
               color: supplyType === 'Fix' ? '#FFFFFF' : '#9C9CA6'
             }}
           >
-            Fix
+            Fixed
           </ToggleButton>
           <ToggleButton
             value="Variable"
