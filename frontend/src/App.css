@@ -1,13 +1,6 @@
 /* App.css */
 
 /* Gradient color for the words "FIXED" and "VARIABLE" */
-.gradient-text {
-    background-image: linear-gradient(90deg, #240046, #c77dff);
-    -webkit-background-clip: text;
-    color: transparent;
-    display: inline;
-  }
-
 .connect-button {
   background-image: linear-gradient(90deg, #240046, #c77dff);
   color: white !important;
