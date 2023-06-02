@@ -43,11 +43,11 @@ function NavBar({ onDeveloperModeChange }) {
   };
 
   return (
-    <AppBar position="static" sx={{ background: 'transparent' }} elevation={0}>
+    <AppBar sx={{ background: 'transparent', position: 'absolute', top: '60px'}} elevation={0}>
       <Toolbar
-        sx={{ minHeight: "90px", display: "flex", alignItems: "flex-end" }}
+        sx={{ minHeight: "100px", display: "", alignItems: "flex-end"}}
       >
-        <div className="logo-text">LILA Finance</div>
+        <div className="logo-text" style={{ position: 'relative', top: '6px', left: '10px', marginRight: "10px" }}>LILA Finance</div>
         <Button component={RouterLink} to="/earn" sx={{color: `rgba(76, 76, 81, 1)`}}>Earn</Button>
         <Button component={RouterLink} to="/positions" sx={{color: `rgba(76, 76, 81, 1)`}}>Positions</Button>
         <IconButton
