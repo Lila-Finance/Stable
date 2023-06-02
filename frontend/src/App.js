@@ -14,8 +14,8 @@ import "./App.css";
 import { useAccount } from "wagmi";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import Positions from './Positions';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Positions from "./Positions";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 const theme = createTheme({
   palette: {
@@ -37,34 +37,40 @@ function App() {
   const { address } = useAccount();
 
   const earn = () => (
-      <Container>
-          <Grid container spacing={7} justifyContent="center" alignItems="center" mt={4}>
-            <Grid item xs={4}>
-              <PoolCard 
-                status={"expired"} 
-                address={address}
-                numPools={numPools}
-                poolNum={0}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <PoolCard 
-                status={"inprogress"} 
-                address={address}
-                numPools={numPools}
-                poolNum={1}
-              />
-            </Grid>
-            <Grid item xs={4}>
-              <PoolCard 
-                status={"done"} 
-                address={address}
-                numPools={numPools}
-                poolNum={2}
-              />
-            </Grid>
-          </Grid>
-        {/* 
+    <Container>
+      <Grid
+        container
+        spacing={7}
+        justifyContent="center"
+        alignItems="center"
+        mt={4}
+      >
+        <Grid item xs={12} md={4}>
+          <PoolCard
+            status={"expired"}
+            address={address}
+            numPools={numPools}
+            poolNum={0}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <PoolCard
+            status={"inprogress"}
+            address={address}
+            numPools={numPools}
+            poolNum={1}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <PoolCard
+            status={"done"}
+            address={address}
+            numPools={numPools}
+            poolNum={2}
+          />
+        </Grid>
+      </Grid>
+      {/* 
             <Grid container spacing={5}>
               <FixedNFTs
                 address={address}
@@ -82,8 +88,8 @@ function App() {
               />
             </Grid>
         )*/}
-      </Container>
-  )
+    </Container>
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -104,12 +110,12 @@ function App() {
           Polygon mainnet and yield is generated through Aave. You need DAI on
           Polygon to test this app.
         </Alert>
-          <NavBar />
-          <Routes>
-              <Route path="/" element={earn()} />
-              <Route path="/earn" element={earn()} />
-              <Route path="/positions" element={<Positions />} />
-          </Routes>
+        <NavBar />
+        <Routes>
+          <Route path="/" element={earn()} />
+          <Route path="/earn" element={earn()} />
+          <Route path="/positions" element={<Positions />} />
+        </Routes>
       </Router>
     </ThemeProvider>
   );
