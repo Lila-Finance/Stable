@@ -40,6 +40,7 @@
         <h1 class="title">Interest Rate Swap</h1>
         <p class="description">Fixed income DeFi markets Saving, lending, market making</p>
         <a
+          id = "app"
           href="https://app.lila.finance"
           target="_blank"
           rel="noopener noreferrer"
@@ -54,4 +55,13 @@
       </div>
     </div>
   </body>
+  <script>
+    /* consider non-wallet accounts to this link as well*/
+    var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  
+    if (isSafari) {
+      /*redirect to non-React page that shows historic rates*/
+      document.getElementById("app").href = "#";
+    }
+  </script>
 </html>
