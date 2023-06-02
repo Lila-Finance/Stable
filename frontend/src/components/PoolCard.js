@@ -239,17 +239,17 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
         <TableRow>
           <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>APR</TableCell>
           <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(fixedRate)}%</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(variableRate)}%</TableCell>
+          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{parseFloat(ethers.utils.formatEther(variableRate)).toFixed(3)}%</TableCell>
         </TableRow>
         <TableRow>
           <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Cap</TableCell>
           <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(fixedLimit)} DAI</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(variableLimit)} DAI</TableCell>
+          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{parseFloat(ethers.utils.formatEther(variableLimit)).toFixed(3)} DAI</TableCell>
         </TableRow>
         <TableRow>
           <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Deposits</TableCell>
           <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(fixedSupply)} DAI</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(variableSupply)} DAI</TableCell>
+          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{parseFloat(ethers.utils.formatEther(variableSupply)).toFixed(3)} DAI</TableCell>
         </TableRow>
       </TableBody>
     </Table>
