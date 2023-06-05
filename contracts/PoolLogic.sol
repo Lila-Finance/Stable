@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import "./FixedNFT.sol";
-import "./VariableNFT.sol";
+import "./PositionNFT.sol";
 
 contract PoolLogic {
 
@@ -17,7 +16,7 @@ contract PoolLogic {
     }
     
     function calculateInterestFixedParts(
-        FixedNFT.DepositData memory depositData,
+        PositionNFT.DepositData memory depositData,
         Times memory times,
         uint256 prevMaxSupply,
         uint256 totalDepositedFixed,
@@ -54,7 +53,7 @@ contract PoolLogic {
 
     
 
-    function calculateInterestVariable(VariableNFT.DepositData memory depositData, Times memory times, uint256 prevMaxSupply, uint256 totalDepositedVariable, uint256 totalClaimedVariable, uint256 totalSupply, uint256 variablePoolLimit, uint256 totalClaimedFixedPrev) public pure returns (uint256) {
+    function calculateInterestVariable(PositionNFT.DepositData memory depositData, Times memory times, uint256 prevMaxSupply, uint256 totalDepositedVariable, uint256 totalClaimedVariable, uint256 totalSupply, uint256 variablePoolLimit, uint256 totalClaimedFixedPrev) public pure returns (uint256) {
         if (times.poolStopped){
             return depositData.amount;
         }

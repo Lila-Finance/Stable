@@ -29,6 +29,8 @@ function FixedNFTs({
         for (let i = 0; i < nftCount; i++) {
           const nftId = await fixedNFTContract.tokenOfOwnerByIndex(address, i);
           const depositData = await fixedNFTContract.getDepositData(nftId);
+          const tokenURI = await fixedNFTContract.tokenURI(nftId);
+          console.log(tokenURI);
           const nftIdNumber = nftId.toNumber();
           console.log(nftIdNumber);
           /*const interest = await poolContract.calculateInterestFixedParts(
@@ -39,6 +41,13 @@ function FixedNFTs({
           const interest = await poolContract.calculateInterestFixed(
             nftIdNumber
           );
+
+          let interestRateRay = await poolContract.getInterestRate();
+          let interestRate =
+            interestRateRay.div(ethers.constants.WeiPerEther).toNumber() / 1e7; // Dividing by 10 to convert from ray to ether format
+          let roundedInterestRatePercent = interestRate.toFixed(2); // Rounding to two decimal places
+
+          console.log(roundedInterestRatePercent); // Should print '0.68'
           const interestParts = await poolContract.calculateInterestFixedParts(
             nftIdNumber
           );

@@ -24,13 +24,7 @@ async function main() {
     fs.mkdirSync(abiDir, { recursive: true });
   }
 
-  for (const contractName of [
-    "PoolDeployer",
-    "Pool",
-    "FixedNFT",
-    "VariableNFT",
-    "PoolLogic",
-  ]) {
+  for (const contractName of ["PoolDeployer", "Pool", "PoolLogic"]) {
     fs.copyFile(
       path.join(
         __dirname,
@@ -43,6 +37,30 @@ async function main() {
       }
     );
   }
+
+  fs.copyFile(
+    path.join(
+      __dirname,
+      `../artifacts/contracts/PositionNFT.sol/PositionNFT.json`
+    ),
+    path.join(abiDir, `FixedNFT.json`),
+    (err) => {
+      if (err) throw err;
+      console.log(`FixedNFT ABI copied to frontend`);
+    }
+  );
+
+  fs.copyFile(
+    path.join(
+      __dirname,
+      `../artifacts/contracts/PositionNFT.sol/PositionNFT.json`
+    ),
+    path.join(abiDir, `VariableNFT.json`),
+    (err) => {
+      if (err) throw err;
+      console.log(`VariableNFT ABI copied to frontend`);
+    }
+  );
 
   // Write addresses to JSON file
   const addresses = {

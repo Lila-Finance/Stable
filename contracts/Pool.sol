@@ -6,17 +6,17 @@ import "@aave/core-v3/contracts/interfaces/IAToken.sol";
 import {IPoolAddressesProvider} from "@aave/core-v3/contracts/interfaces/IPoolAddressesProvider.sol";
 import {IERC20} from "@aave/core-v3/contracts/dependencies/openzeppelin/contracts/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./FixedNFT.sol";
-import "./VariableNFT.sol";
 import "./PoolLogic.sol";
+import "./PositionNFT.sol";
 
 contract Pool is Ownable {
     IPool private _pool;
     IERC20 private _dai;
     IPoolAddressesProvider private poolAddressesProvider;
     address private poolAddress;
-    FixedNFT public fixedNFT;
-    VariableNFT public variableNFT;
+    // Use contract address directly and cast it to your contract type
+    PositionNFT public fixedNFT;
+    PositionNFT public variableNFT;
 
     uint256 public fixedPoolLimit;
     uint256 public variablePoolLimit;
@@ -57,9 +57,10 @@ contract Pool is Ownable {
         interestRate = _interestRate;
         variablePoolLimit = poolLogic.calculateInterest(fixedPoolLimit, interestRate, lockDuration);
         poolDeployTime = block.timestamp;
-        // Instantiate the FixedNFT contract with the address of this Pool contract
-        fixedNFT = new FixedNFT(address(this));
-        variableNFT = new VariableNFT(address(this));
+
+        // Cast the address to the contract type
+        fixedNFT = new PositionNFT(address(this));
+        variableNFT = new PositionNFT(address(this));
     }
 
     function depositFixed(uint256 amount) external {
@@ -74,7 +75,7 @@ contract Pool is Ownable {
         totalTimeWeight += timeWeight;
 
         // Mint the NFT representing the deposit position
-        uint256 tokenId = fixedNFT.mint(msg.sender, amount, curTime);
+        uint256 tokenId = fixedNFT.mint(msg.sender, amount, curTime, "Fixed");
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedFixed += amount;
@@ -86,7 +87,7 @@ contract Pool is Ownable {
         require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
         // Mint the NFT representing the deposit position
-        uint256 tokenId = variableNFT.mint(msg.sender, amount, blocktime());
+        uint256 tokenId = variableNFT.mint(msg.sender, amount, blocktime(), "Variable");
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedVariable += amount;
@@ -120,7 +121,7 @@ contract Pool is Ownable {
 
 
     function calculateInterestFixedParts(uint256 tokenId) public view returns (uint256, uint256) {
-        FixedNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
+        PositionNFT.DepositData memory depositData = fixedNFT.getDepositData(tokenId);
         PoolLogic.Times memory times = PoolLogic.Times({
             poolStartTime: poolStartTime,
             blocktime: blocktime(),
@@ -140,7 +141,7 @@ contract Pool is Ownable {
 
 
     function calculateInterestVariable(uint256 tokenId) public view returns (uint256) {
-        VariableNFT.DepositData memory depositData = variableNFT.getDepositData(tokenId);
+        PositionNFT.DepositData memory depositData = variableNFT.getDepositData(tokenId);
         PoolLogic.Times memory times = PoolLogic.Times({
             poolStartTime: poolStartTime,
             blocktime: blocktime(),
@@ -155,7 +156,7 @@ contract Pool is Ownable {
 
     function withdrawFixed(uint256 tokenId) external {
         require(fixedNFT.ownerOf(tokenId) == msg.sender, "Sender is not NFT owner");
-        require(blocktime() >= poolStartTime + lockDuration, "Lock duration not reached");
+        require(poolStartTime > 0 && blocktime() >= poolStartTime + lockDuration, "Lock duration not reached");
         (uint256 startinterest, uint256 midinterest) = calculateInterestFixedParts(tokenId);
         uint256 interest = startinterest + midinterest;
         if (startinterest > 0){
@@ -169,9 +170,13 @@ contract Pool is Ownable {
         }
     }
 
+    function getInterestRate() public view returns (uint256) {
+        return _pool.getReserveData(address(_dai)).currentLiquidityRate;
+    }
+
     function withdrawVariable(uint256 tokenId) external {
         require(variableNFT.ownerOf(tokenId) == msg.sender, "Sender is not NFT owner");
-        require(blocktime() >= poolStartTime + lockDuration, "Lock duration not reached");
+        require(poolStartTime > 0 && blocktime() >= poolStartTime + lockDuration, "Lock duration not reached");
         uint256 interest = calculateInterestVariable(tokenId);
         totalClaimedVariable += interest;
         _pool.withdraw(address(_dai), interest, address(this));
