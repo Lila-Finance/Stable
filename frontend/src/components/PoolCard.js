@@ -1,30 +1,35 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Divider, 
-  TextField, 
-  Button, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableRow, 
+import {
+  Card,
+  CardContent,
+  Typography,
+  Divider,
+  TextField,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
   InputAdornment,
   Alert,
   CircularProgress,
   ToggleButton,
-  ToggleButtonGroup
-} from '@mui/material';
-import redEllipse from '../images/red_ellipse.png';
-import yellowEllipse from '../images/yellow_ellipse.png';
-import greenEllipse from '../images/green_ellipse.png';
+  ToggleButtonGroup,
+} from "@mui/material";
+import redEllipse from "../images/red_ellipse.png";
+import yellowEllipse from "../images/yellow_ellipse.png";
+import greenEllipse from "../images/green_ellipse.png";
 import { ethers } from "ethers";
 import { approveSpend, sendParams } from "./Provider";
 import { poolDeployerContract } from "./Provider";
 import PoolAbi from "../abi/Pool.json";
 import FixedNFTAbi from "../abi/FixedNFT.json";
 import VariableNFTAbi from "../abi/VariableNFT.json";
+
+// Setup the provider
+let provider2 = new ethers.providers.JsonRpcProvider(
+  "https://polygon-mainnet.infura.io/v3/ff8a0d79fc0149e5a76b362164ce4e44"
+);
 
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
@@ -36,7 +41,7 @@ const signer = provider.getSigner();
 const PoolCard = ({ status, address, numPools, poolNum }) => {
   const [poolStatus, setPoolStatus] = useState(null);
   // State to handle "Fix" and "Variable" toggle button
-  const [supplyType, setSupplyType] = useState('Variable');
+  const [supplyType, setSupplyType] = useState("Variable");
   // state from supplyFixed.js
   const [fixMax, setFixMax] = useState(null);
   const [amount, setAmount] = useState("");
@@ -64,16 +69,16 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
     async function setPool() {
       if (numPools > 0) {
         const poolInfo = await poolDeployerContract.pools(poolNum % numPools);
-        const poolContract = new ethers.Contract(poolInfo, poolAbi, signer);
+        const poolContract = new ethers.Contract(poolInfo, poolAbi, provider2);
         const fixedNFTContract = new ethers.Contract(
           await poolContract.fixedNFT(),
           fixedNFTAbi,
-          signer
+          provider2
         );
         const variableNFTContract = new ethers.Contract(
           await poolContract.variableNFT(),
           variableNFTAbi,
-          signer
+          provider2
         );
         setPoolContract(poolContract);
         setFixedNFTContract(fixedNFTContract);
@@ -86,7 +91,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
     }
   }, [poolNum, address, numPools]);
 
-  // function from App.js 
+  // function from App.js
   useEffect(() => {
     async function setRate() {
       const rates = await poolContract.interests();
@@ -199,7 +204,10 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
         amountWei = await approveSpend(address, amount, poolContract);
       }
       setError(null);
-      const txResponse = await poolContract.depositVariable(amountWei, sendParams);
+      const txResponse = await poolContract.depositVariable(
+        amountWei,
+        sendParams
+      );
       // Wait for the transaction to be mined
       await txResponse.wait();
     } catch (err) {
@@ -212,15 +220,15 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
   };
 
   useEffect(() => {
-    console.log('status: ', status);
+    console.log("status: ", status);
     switch (status) {
       case "expired":
         setPoolStatus(redEllipse);
         break;
-      case 'inprogress':
+      case "inprogress":
         setPoolStatus(yellowEllipse);
         break;
-      case 'done':
+      case "done":
         setPoolStatus(greenEllipse);
         break;
       default:
@@ -232,73 +240,214 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
     <Table>
       <TableBody>
         <TableRow>
-          <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}> </TableCell>
-          <TableCell size="small" align="right" style={{ color: "#9C9CA6", border: 'none' }}>Fixed</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#9C9CA6", border: 'none' }}>Variable</TableCell>
+          <TableCell
+            size="small"
+            component="th"
+            scope="row"
+            style={{ color: "#9C9CA6", border: "none" }}
+          >
+            {" "}
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#9C9CA6", border: "none" }}
+          >
+            Fixed
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#9C9CA6", border: "none" }}
+          >
+            Variable
+          </TableCell>
         </TableRow>
         <TableRow>
-          <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>APR</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(fixedRate)}%</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{parseFloat(ethers.utils.formatEther(variableRate)).toFixed(3)}%</TableCell>
+          <TableCell
+            size="small"
+            component="th"
+            scope="row"
+            style={{ color: "#9C9CA6", border: "none" }}
+          >
+            APR
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#4C4C51", border: "none" }}
+          >
+            {ethers.utils.formatEther(fixedRate)}%
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#4C4C51", border: "none" }}
+          >
+            {parseFloat(ethers.utils.formatEther(variableRate)).toFixed(3)}%
+          </TableCell>
         </TableRow>
         <TableRow>
-          <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Cap</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(fixedLimit)} DAI</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{parseFloat(ethers.utils.formatEther(variableLimit)).toFixed(3)} DAI</TableCell>
+          <TableCell
+            size="small"
+            component="th"
+            scope="row"
+            style={{ color: "#9C9CA6", border: "none" }}
+          >
+            Cap
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#4C4C51", border: "none" }}
+          >
+            {ethers.utils.formatEther(fixedLimit)} DAI
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#4C4C51", border: "none" }}
+          >
+            {parseFloat(ethers.utils.formatEther(variableLimit)).toFixed(3)} DAI
+          </TableCell>
         </TableRow>
         <TableRow>
-          <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Deposits</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{ethers.utils.formatEther(fixedSupply)} DAI</TableCell>
-          <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>{parseFloat(ethers.utils.formatEther(variableSupply)).toFixed(3)} DAI</TableCell>
+          <TableCell
+            size="small"
+            component="th"
+            scope="row"
+            style={{ color: "#9C9CA6", border: "none" }}
+          >
+            Deposits
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#4C4C51", border: "none" }}
+          >
+            {ethers.utils.formatEther(fixedSupply)} DAI
+          </TableCell>
+          <TableCell
+            size="small"
+            align="right"
+            style={{ color: "#4C4C51", border: "none" }}
+          >
+            {parseFloat(ethers.utils.formatEther(variableSupply)).toFixed(3)}{" "}
+            DAI
+          </TableCell>
         </TableRow>
       </TableBody>
     </Table>
-  )
+  );
 
   const statusTable = () => {
     const emptyRow = (
       <TableRow>
-        <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}></TableCell>
+        <TableCell
+          size="small"
+          component="th"
+          scope="row"
+          style={{ color: "#9C9CA6", border: "none" }}
+        ></TableCell>
       </TableRow>
     );
 
-    if (status === 'expired') {
+    if (status === "expired") {
       return (
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Expired</TableCell>
+              <TableCell
+                size="small"
+                component="th"
+                scope="row"
+                style={{ color: "#9C9CA6", border: "none" }}
+              >
+                Expired
+              </TableCell>
             </TableRow>
             {emptyRow}
           </TableBody>
         </Table>
       );
-    } else if (status === 'inprogress') {
+    } else if (status === "inprogress") {
       return (
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Expiry</TableCell>
-              <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>xxx. xx,xx</TableCell>
+              <TableCell
+                size="small"
+                component="th"
+                scope="row"
+                style={{ color: "#9C9CA6", border: "none" }}
+              >
+                Expiry
+              </TableCell>
+              <TableCell
+                size="small"
+                align="right"
+                style={{ color: "#4C4C51", border: "none" }}
+              >
+                xxx. xx,xx
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Payout</TableCell>
-              <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>0 of x</TableCell>
+              <TableCell
+                size="small"
+                component="th"
+                scope="row"
+                style={{ color: "#9C9CA6", border: "none" }}
+              >
+                Payout
+              </TableCell>
+              <TableCell
+                size="small"
+                align="right"
+                style={{ color: "#4C4C51", border: "none" }}
+              >
+                0 of x
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
       );
-    } else if (status === 'done') {
+    } else if (status === "done") {
       return (
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Maturity</TableCell>
-              <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>xxx. xx,xx</TableCell>
+              <TableCell
+                size="small"
+                component="th"
+                scope="row"
+                style={{ color: "#9C9CA6", border: "none" }}
+              >
+                Maturity
+              </TableCell>
+              <TableCell
+                size="small"
+                align="right"
+                style={{ color: "#4C4C51", border: "none" }}
+              >
+                xxx. xx,xx
+              </TableCell>
             </TableRow>
             <TableRow>
-              <TableCell size="small" component="th" scope="row" style={{ color: "#9C9CA6", border: 'none' }}>Payout</TableCell>
-              <TableCell size="small" align="right" style={{ color: "#4C4C51", border: 'none' }}>x of x+1</TableCell>
+              <TableCell
+                size="small"
+                component="th"
+                scope="row"
+                style={{ color: "#9C9CA6", border: "none" }}
+              >
+                Payout
+              </TableCell>
+              <TableCell
+                size="small"
+                align="right"
+                style={{ color: "#4C4C51", border: "none" }}
+              >
+                x of x+1
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -311,48 +460,66 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
             {emptyRow}
           </TableBody>
         </Table>
-      )
+      );
     }
-  }
+  };
 
   return (
-  <Card variant="outlined" sx={{ borderColor: '#FBFBEC', backgroundColor: '#ECECFB', borderRadius: '10px', height:'100%' }}>
+    <Card
+      variant="outlined"
+      sx={{
+        borderColor: "#FBFBEC",
+        backgroundColor: "#ECECFB",
+        borderRadius: "10px",
+        height: "100%",
+      }}
+    >
       <CardContent>
-        <Typography 
-          variant="h6" 
-          color="#4C4C51" 
-          gutterBottom 
-          align="center" 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center'
+        <Typography
+          variant="h6"
+          color="#4C4C51"
+          gutterBottom
+          align="center"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          <div style={{ flexGrow: 1, textAlign: 'center' }}>
+          <div style={{ flexGrow: 1, textAlign: "center" }}>
             DAI (Aave) <strong>{lockDuration}</strong>
           </div>
-          {poolStatus && <img src={poolStatus} alt="status ellipse" style={{ width: '10%', height: '10%', marginLeft: 'auto' }}/>}
+          {poolStatus && (
+            <img
+              src={poolStatus}
+              alt="status ellipse"
+              style={{ width: "10%", height: "10%", marginLeft: "auto" }}
+            />
+          )}
         </Typography>
-        <Divider sx={{ bgcolor: '#FBFBEC' }} />
+        <Divider sx={{ bgcolor: "#FBFBEC" }} />
         {poolDataTable()}
-        <Divider sx={{ bgcolor: '#FBFBEC', marginTop: '10px', marginBottom: '10px' }} />
+        <Divider
+          sx={{ bgcolor: "#FBFBEC", marginTop: "10px", marginBottom: "10px" }}
+        />
         {statusTable()}
-        <Divider sx={{ bgcolor: '#FBFBEC', marginTop: '10px', marginBottom: '10px' }} />
+        <Divider
+          sx={{ bgcolor: "#FBFBEC", marginTop: "10px", marginBottom: "10px" }}
+        />
         <ToggleButtonGroup
           size="small"
           value={supplyType}
           exclusive
           onChange={(event, newValue) => setSupplyType(newValue)}
           fullWidth
-          sx={{ marginBottom: '10px' }}
+          sx={{ marginBottom: "10px" }}
         >
           <ToggleButton
             value="Fix"
             style={{
-              width: '50%',
-              backgroundColor: supplyType === 'Fix' ? '#99CEFF' : '#FFFFFF',
-              color: supplyType === 'Fix' ? '#FFFFFF' : '#9C9CA6'
+              width: "50%",
+              backgroundColor: supplyType === "Fix" ? "#99CEFF" : "#FFFFFF",
+              color: supplyType === "Fix" ? "#FFFFFF" : "#9C9CA6",
             }}
           >
             Fixed
@@ -360,9 +527,10 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
           <ToggleButton
             value="Variable"
             style={{
-              width: '50%',
-              backgroundColor: supplyType === 'Variable' ? '#99CEFF' : '#FFFFFF',
-              color: supplyType === 'Variable' ? '#FFFFFF' : '#9C9CA6'
+              width: "50%",
+              backgroundColor:
+                supplyType === "Variable" ? "#99CEFF" : "#FFFFFF",
+              color: supplyType === "Variable" ? "#FFFFFF" : "#9C9CA6",
             }}
           >
             Variable
@@ -379,9 +547,9 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
           type="number"
           size="small"
           value={amount}
-          inputProps={{ 
+          inputProps={{
             step: "0.0001",
-            style: { color: "#4C4C51", backgroundColor: '#FFFFFF' }
+            style: { color: "#4C4C51", backgroundColor: "#FFFFFF" },
           }}
           FormHelperTextProps={{ style: { color: "#9C9CA6" } }}
           helperText="Make sure you have DAI on Polygon"
@@ -391,23 +559,32 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
             setVarMax(null);
           }}
           InputProps={{
-            style: { backgroundColor: '#FFFFFF' },
+            style: { backgroundColor: "#FFFFFF" },
             endAdornment: (
               <InputAdornment position="end">
-                <Button size="small" onClick={supplyType === 'Fix' ? handleFixMaxClick : handleVarMaxClick}>
+                <Button
+                  size="small"
+                  onClick={
+                    supplyType === "Fix" ? handleFixMaxClick : handleVarMaxClick
+                  }
+                >
                   Max
                 </Button>
               </InputAdornment>
             ),
           }}
         />
-        <Button 
+        <Button
           variant="contained"
           fullWidth={true}
-          style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
-          sx={{ marginTop:'10px', backgroundColor: '#99CEFF', color: '#FFFFFF' }}
+          style={{ fontSize: "0.7rem", flex: 1, padding: "10px 20px" }}
+          sx={{
+            marginTop: "10px",
+            backgroundColor: "#99CEFF",
+            color: "#FFFFFF",
+          }}
           disabled={isLoading}
-          onClick={supplyType === 'Fix' ? supplyFixed : supplyVariable}
+          onClick={supplyType === "Fix" ? supplyFixed : supplyVariable}
         >
           {isLoading ? (
             <>
@@ -415,7 +592,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
               <span style={{ marginLeft: "10px" }}>Transacting...</span>
             </>
           ) : (
-            'Supply'
+            "Supply"
           )}
         </Button>
       </CardContent>
