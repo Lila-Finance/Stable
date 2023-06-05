@@ -71,7 +71,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
   const [lockDuration, setLockDuration] = useState(0);
   const [timeSinceStart, setTimeSinceStart] = useState(0);
   const [fixedRate, setFixedRate] = useState(ethers.BigNumber.from("0"));
-  const [variableRate, setVariableRate] = useState(ethers.BigNumber.from("0"));
+  const [variableRate, setVariableRate] = useState("0");
 
   // function from App.js
   useEffect(() => {
@@ -117,9 +117,12 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
       const timeSinceStart = await poolContract.timeSinceStart();
       const timeSinceStartInDays = timeSinceStart.div(secondsInADay);
       setTimeSinceStart(`${timeSinceStartInDays.toString()} days`);
-
+      let interestRateRay = await poolContract.getInterestRate();
+      let interestRate =
+        interestRateRay.div(ethers.constants.WeiPerEther).toNumber() / 1e7; // Dividing by 10 to convert from ray to ether format
+      let roundedInterestRatePercent = interestRate.toFixed(2); // Rounding to two decimal places
       setFixedRate(rates[0]);
-      setVariableRate(rates[1]);
+      setVariableRate(roundedInterestRatePercent.toString());
     }
     if (poolContract) {
       setRate();
@@ -298,7 +301,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
             align="right"
             style={{ color: "#4C4C51", border: "none" }}
           >
-            {parseFloat(ethers.utils.formatEther(variableRate)).toFixed(3)}%
+            {variableRate}%
           </TableCell>
         </TableRow>
         <TableRow>
