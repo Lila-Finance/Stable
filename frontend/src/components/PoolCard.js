@@ -21,10 +21,11 @@ import yellowEllipse from "../images/yellow_ellipse.png";
 import greenEllipse from "../images/green_ellipse.png";
 import { ethers } from "ethers";
 import { approveSpend, sendParams } from "./Provider";
-import { poolDeployerContract } from "./Provider";
 import PoolAbi from "../abi/Pool.json";
 import FixedNFTAbi from "../abi/FixedNFT.json";
 import VariableNFTAbi from "../abi/VariableNFT.json";
+import PoolDeployerAbi from "../abi/PoolDeployer.json";
+import addresses from "../addresses/addresses.json";
 
 // Setup the provider
 let provider2 = new ethers.providers.JsonRpcProvider(
@@ -34,9 +35,14 @@ let provider2 = new ethers.providers.JsonRpcProvider(
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
 const variableNFTAbi = VariableNFTAbi.abi;
+const poolDeployerAbi = PoolDeployerAbi.abi;
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
+let provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
+
+if (!window.ethereum) {
+  provider = provider2;
+}
 
 const PoolCard = ({ status, address, numPools, poolNum }) => {
   const [poolStatus, setPoolStatus] = useState(null);
@@ -68,17 +74,23 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
   useEffect(() => {
     async function setPool() {
       if (numPools > 0) {
+        const poolDeployerContract = new ethers.Contract(
+          addresses.POOL_DEPLOYER_ADDRESS,
+          poolDeployerAbi,
+          provider
+        );
         const poolInfo = await poolDeployerContract.pools(poolNum % numPools);
-        const poolContract = new ethers.Contract(poolInfo, poolAbi, provider2);
+        console.log(`Pool address: ${poolInfo}`); // debug output
+        const poolContract = new ethers.Contract(poolInfo, poolAbi, provider);
         const fixedNFTContract = new ethers.Contract(
           await poolContract.fixedNFT(),
           fixedNFTAbi,
-          provider2
+          provider
         );
         const variableNFTContract = new ethers.Contract(
           await poolContract.variableNFT(),
           variableNFTAbi,
-          provider2
+          provider
         );
         setPoolContract(poolContract);
         setFixedNFTContract(fixedNFTContract);
@@ -86,9 +98,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
       }
       //const pools = await poolDeployerContract.getPools();
     }
-    if (address) {
-      setPool();
-    }
+    setPool();
   }, [poolNum, address, numPools]);
 
   // function from App.js
