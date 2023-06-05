@@ -28,8 +28,11 @@ import PoolDeployerAbi from "../abi/PoolDeployer.json";
 import addresses from "../addresses/addresses.json";
 
 // Setup the provider
-let provider2 = new ethers.providers.JsonRpcProvider(
+/*let provider2 = new ethers.providers.JsonRpcProvider(
   "https://polygon-mainnet.infura.io/v3/ff8a0d79fc0149e5a76b362164ce4e44"
+);*/
+let provider2 = new ethers.providers.JsonRpcProvider(
+  "https://sepolia.infura.io/v3/ff8a0d79fc0149e5a76b362164ce4e44"
 );
 
 const poolAbi = PoolAbi.abi;
@@ -73,6 +76,7 @@ const PoolCard = ({ status, address, numPools, poolNum }) => {
   // function from App.js
   useEffect(() => {
     async function setPool() {
+      console.log(numPools);
       if (numPools > 0) {
         const poolDeployerContract = new ethers.Contract(
           addresses.POOL_DEPLOYER_ADDRESS,

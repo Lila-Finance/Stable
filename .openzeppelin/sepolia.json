@@ -1,0 +1,25 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xCe436e7368860f09c78b5d6D548Fed33B1585bE3",
+    "txHash": "0x4312a98c1e8fc6819d45582492d4c2eea60a3ce23c22ee60c3d759d46cec1cd4"
+  },
+  "proxies": [
+    {
+      "address": "0xeA25e94909Cb5e2663C68ebF3Ef3cAdFC16F7D29",
+      "txHash": "0xd0aea8ac792f94963a4dfc7f1a8c4ed451eb65f2c657cfc34a757b80bc2db500",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "6b08d8caa2c3a0ccf6fe4c92d21339e585e33235e5a41982c97c2f366f2cf802": {
+      "address": "0xc7944Fe44DB2E1C166a328f8E1118b80Df7c83Dc",
+      "txHash": "0xae11c9befd929f2d77c4b15e93fea1e2c152bae50d4124837adc43ee981604c9",
+      "layout": {
+        "solcVersion": "0.8.10",
+        "storage": [],
+        "types": {}
+      }
+    }
+  }
+}

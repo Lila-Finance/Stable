@@ -32,7 +32,7 @@ const theme = createTheme({
 });
 
 function App() {
-  const [numPools, setNumPools] = useState(2);
+  const [numPools, setNumPools] = useState(1);
   const [developerMode, setDeveloperMode] = useState(false);
   const { address } = useAccount();
 

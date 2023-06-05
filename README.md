@@ -41,12 +41,13 @@ npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.ts --network sepolia
+npx hardhat run scripts/createPool.ts --network sepolia
 ```
 
 # Deploy
 
 App at https://rapturt9.github.io/Fixed_Yield/
 
-```shell
-npm run deploy -- -m "Deploy React app to GitHub Pages"
-```
+# Deploy
+
+In the react code, change the deployed netork to Polygon instead of Sepolia and deploy the contracts to polygon. Also change the hardcoded DAI_ADDRESS and AAVE_ADDRESSES_PROVIDER. Also change the rpc node to sepolia
