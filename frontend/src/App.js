@@ -115,6 +115,7 @@ function App() {
           <Route path="/" element={earn()} />
           <Route path="/earn" element={earn()} />
           <Route path="/positions" element={<Positions />} />
+          <Route path="/alt" element={alt()}/>
         </Routes>
       </Router>
     </ThemeProvider>
