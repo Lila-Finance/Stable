@@ -107,7 +107,13 @@ function FixedNFTs({
       {fixedNFTs.map((fixedNFT) => (
         <Card
           key={fixedNFT.tokenId}
-          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
+          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff", cursor: "pointer" }}
+          onClick={() => {
+            window.open(
+              `https://sepolia.etherscan.io/nft/${fixedNFTContract.address}/${fixedNFT.tokenId}`,
+              "_blank"
+            );
+          }}
         >
           <CardContent>
             <Typography>Token ID: {fixedNFT.tokenId}</Typography>

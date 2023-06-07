@@ -94,7 +94,13 @@ function VariableNFTs({
       {variableNFTs.map((variableNFT) => (
         <Card
           key={variableNFT.tokenId}
-          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
+          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff", cursor: "pointer" }}
+          onClick={() => {
+            window.open(
+              `https://sepolia.etherscan.io/nft/${variableNFTContract.address}/${variableNFT.tokenId}`,
+              "_blank"
+            );
+          }}
         >
           <CardContent>
             <Typography>Token ID: {variableNFT.tokenId}</Typography>
