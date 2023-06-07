@@ -75,7 +75,7 @@ contract Pool is Ownable {
         totalTimeWeight += timeWeight;
 
         // Mint the NFT representing the deposit position
-        uint256 tokenId = fixedNFT.mint(msg.sender, amount, curTime, "Fixed");
+        uint256 tokenId = fixedNFT.mint(msg.sender, amount, curTime, "Fixed", interestRate);
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedFixed += amount;
@@ -87,7 +87,7 @@ contract Pool is Ownable {
         require(_dai.transferFrom(msg.sender, address(this), amount), "Transfer failed");
 
         // Mint the NFT representing the deposit position
-        uint256 tokenId = variableNFT.mint(msg.sender, amount, blocktime(), "Variable");
+        uint256 tokenId = variableNFT.mint(msg.sender, amount, blocktime(), "Variable", getInterestRate());
 
         // Update the total deposited amount and pool start time if necessary
         totalDepositedVariable += amount;
