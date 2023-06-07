@@ -30,7 +30,7 @@ contract PositionNFT is ERC721, ERC721Enumerable, ERC721URIStorage {
         _;
     }
 
-    function mint(address to, uint256 amount, uint256 depositTime, string memory typeNFT) external onlyPool returns (uint256) {
+    function mint(address to, uint256 amount, uint256 depositTime, string memory typeNFT, uint256 interestRate) external onlyPool returns (uint256) {
         //console.log("Minting NFT for %s with amount %s and deposit time %s", to, amount, depositTime);
 
         uint256 newTokenId = nextTokenId;
@@ -39,7 +39,7 @@ contract PositionNFT is ERC721, ERC721Enumerable, ERC721URIStorage {
         //string memory metadata = string(abi.encodePacked(parts[0], parts[1], parts[2], parts[3], parts[4], parts[5]));
 
         //_setTokenURI(newTokenId, metadata);
-        generateNFT(typeNFT, amount);
+        generateNFT(typeNFT, amount, interestRate);
 
         nextTokenId++;
 
@@ -48,15 +48,18 @@ contract PositionNFT is ERC721, ERC721Enumerable, ERC721URIStorage {
         return newTokenId;
     }
 
-    function generateNFT(string memory typeNFT, uint256 amount) internal {
-        string memory baseSvg = "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
-        
-        // Convert amount to string
+    function generateNFT(string memory typeNFT, uint256 amount, uint256 interestRate) internal {
         string memory amountAsString = Strings.toString(amount / 1e18);
-
-        // Use amountAsString in combinedWord
-        string memory combinedWord = string(abi.encodePacked(typeNFT, " ", amountAsString));
-        string memory finalSvg = string(abi.encodePacked(baseSvg, combinedWord, "</text></svg>"));
+        string memory interestRateAsString = Strings.toString(interestRate / 1e18);
+        string memory combinedWord = string(abi.encodePacked(typeNFT, ": ", amountAsString));
+        string memory finalSvg = string(abi.encodePacked(
+        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: black; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='#D9D9D9'/><text x='10%' y='40%' class='base'>Type: ", 
+        typeNFT,
+        "</text><text x='10%' y='50%' class='base'>Value: ",
+        amountAsString,
+        "</text><text x='10%' y='60%' class='base'>Interest Rate: ",
+        interestRateAsString,
+        "%</text></svg>"));
 
         // Get all the JSON metadata in place and base64 encode it.
         string memory json = Base64.encode(
@@ -124,7 +127,7 @@ contract PositionNFT is ERC721, ERC721Enumerable, ERC721URIStorage {
     function supportsInterface(bytes4 interfaceId)
         public
         view
-        override(ERC721, ERC721Enumerable)
+        override(ERC721, ERC721Enumerable, ERC721URIStorage)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
