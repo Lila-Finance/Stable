@@ -7,6 +7,8 @@ import "./App.css";
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useAccount } from "wagmi";
+
 
 const theme = createTheme({
     palette: {
@@ -23,6 +25,9 @@ const theme = createTheme({
   });
   
   function AltApp() {
+    const [numPools, setNumPools] = useState(1);
+    const [developerMode, setDeveloperMode] = useState(false);
+    const { address } = useAccount();
     const alt = () => (
       <Container>
         <Grid
@@ -75,8 +80,9 @@ const theme = createTheme({
           </Alert>
           <NavBar />
           <Routes>
-          <Route path="/" element={alt} />
-            <Route path="/alt" element={alt()} />
+          <Route path="/" element={alt()} />
+          <Route path="/earn" element={earn()} />
+          <Route path="/alt" element={alt()} />
           </Routes>
         </Router>
       </ThemeProvider>

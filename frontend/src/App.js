@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import NavBar from "./components/NavBar";
 import PoolCard from "./components/PoolCard";
+import AltCard from "./components/AltCard"
 import FixedNFTs from "./components/FixedNFTs";
 import VariableNFTs from "./components/VariableNFTs";
 import {
@@ -70,24 +71,6 @@ function App() {
           />
         </Grid>
       </Grid>
-      {/* 
-            <Grid container spacing={5}>
-              <FixedNFTs
-                address={address}
-                rate={fixedRate}
-                fixedNFTContract={fixedNFTContract}
-                poolContract={poolContract}
-                refreshKey={refreshKey}
-              />
-              <VariableNFTs
-                address={address}
-                rate={variableRate}
-                variableNFTContract={variableNFTContract}
-                poolContract={poolContract}
-                refreshKey={refreshKey}
-              />
-            </Grid>
-        )*/}
     </Container>
   );
 
@@ -115,7 +98,6 @@ function App() {
           <Route path="/" element={earn()} />
           <Route path="/earn" element={earn()} />
           <Route path="/positions" element={<Positions />} />
-          <Route path="/alt" element={alt()}/>
         </Routes>
       </Router>
     </ThemeProvider>
