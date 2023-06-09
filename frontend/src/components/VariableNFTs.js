@@ -60,23 +60,7 @@ function VariableNFTs({
   const redeemVariable = async (tokenId) => {
     try {
       setIsLoading(true);
-      try {
-        // Calculate the interest
-        const interest = await poolContract.calculateInterestVariable(tokenId);
-        console.log("Calculated interest:", interest.toString());
-
-        //get total supply
-        const totalSupply = await poolContract.getTotalSupply();
-        console.log("Total supply:", totalSupply.toString());
-
-        // Calculate totalClaimedVariable
-        const totalClaimedVariable = await poolContract.totalClaimedVariable();
-        console.log("Total claimed variable:", totalClaimedVariable.toString());
-        // Execute withdrawal
-        await poolContract.withdrawVariable(tokenId, sendParams);
-      } catch (error) {
-        console.error("Error during withdrawal:", error);
-      }
+      await poolContract.withdrawVariable(tokenId, sendParams);
     } catch (err) {
       console.error(err);
     } finally {
@@ -87,6 +71,7 @@ function VariableNFTs({
   const SampleNFTCard = () => (
     <Card sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
       <CardContent>
+        <Typography>Sample Token ID: 12345</Typography>
         <Typography>Sample Value: 100</Typography>
         <Typography sx={{ marginBottom: 2 }}>Sample Interest: 10</Typography>
         <Button
@@ -103,15 +88,22 @@ function VariableNFTs({
 
   return (
     <Box>
-      <Typography color="secondary" variant="h4" fontWeight="bold">
+      <Typography variant="h4" fontWeight="bold">
         My Variable NFTs
       </Typography>
       {variableNFTs.map((variableNFT) => (
         <Card
           key={variableNFT.tokenId}
-          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
+          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff", cursor: "pointer" }}
+          onClick={() => {
+            window.open(
+              `https://sepolia.etherscan.io/nft/${variableNFTContract.address}/${variableNFT.tokenId}`,
+              "_blank"
+            );
+          }}
         >
           <CardContent>
+            <Typography>Token ID: {variableNFT.tokenId}</Typography>
             <Typography>Value: {variableNFT.value}</Typography>
             <Typography>Claim: {variableNFT.claim}</Typography>
             <Typography sx={{ marginBottom: 2 }}>
@@ -122,9 +114,8 @@ function VariableNFTs({
               variant="contained"
               color="primary"
               onClick={() => redeemVariable(variableNFT.tokenId)}
-              disabled={isLoading || variableNFT.interest === "0.0"}
             >
-              Redeem Interest
+              Redeem Variable
             </Button>
           </CardContent>
         </Card>

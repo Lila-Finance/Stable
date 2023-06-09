@@ -29,6 +29,8 @@ function FixedNFTs({
         for (let i = 0; i < nftCount; i++) {
           const nftId = await fixedNFTContract.tokenOfOwnerByIndex(address, i);
           const depositData = await fixedNFTContract.getDepositData(nftId);
+          const tokenURI = await fixedNFTContract.tokenURI(nftId);
+          console.log(tokenURI);
           const nftIdNumber = nftId.toNumber();
           console.log(nftIdNumber);
           /*const interest = await poolContract.calculateInterestFixedParts(
@@ -39,6 +41,17 @@ function FixedNFTs({
           const interest = await poolContract.calculateInterestFixed(
             nftIdNumber
           );
+
+          let interestRateRay = await poolContract.getInterestRate();
+          let interestRate =
+            interestRateRay.div(ethers.constants.WeiPerEther).toNumber() / 1e7; // Dividing by 10 to convert from ray to ether format
+          let roundedInterestRatePercent = interestRate.toFixed(2); // Rounding to two decimal places
+
+          console.log(roundedInterestRatePercent); // Should print '0.68'
+          const interestParts = await poolContract.calculateInterestFixedParts(
+            nftIdNumber
+          );
+          console.log(interestParts.map((x) => ethers.utils.formatEther(x)));
           myFixedNFTs.push({
             tokenId: nftIdNumber,
             value: ethers.utils.formatEther(depositData["amount"]),
@@ -60,36 +73,7 @@ function FixedNFTs({
   const redeemFixed = async (tokenId) => {
     try {
       setIsLoading(true);
-      try {
-        // Calculate the interest
-        const interestParts = await poolContract.calculateInterestFixedParts(
-          tokenId
-        );
-        console.log(
-          "Calculated interest start part:",
-          interestParts[0].toString()
-        );
-        console.log(
-          "Calculated interest mid part:",
-          interestParts[1].toString()
-        );
-
-        const interest = interestParts[0].add(interestParts[1]);
-        console.log("Total interest:", interest.toString());
-
-        // Calculate totalClaimedFixedPrev
-        const totalClaimedFixedPrev =
-          await poolContract.totalClaimedFixedPrev();
-        console.log(
-          "Total claimed fixed prev:",
-          totalClaimedFixedPrev.toString()
-        );
-
-        // Execute withdrawal
-        await poolContract.withdrawFixed(tokenId, sendParams);
-      } catch (error) {
-        console.error("Error during withdrawal:", error);
-      }
+      await poolContract.withdrawFixed(tokenId, sendParams);
     } catch (err) {
       console.error(err);
     } finally {
@@ -100,6 +84,7 @@ function FixedNFTs({
   const SampleNFTCard = () => (
     <Card sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}>
       <CardContent>
+        <Typography>Sample Token ID: 12345</Typography>
         <Typography>Sample Value: 100</Typography>
         <Typography sx={{ marginBottom: 2 }}>Sample Interest: 10</Typography>
         <Button
@@ -116,15 +101,22 @@ function FixedNFTs({
 
   return (
     <Box>
-      <Typography color="secondary" variant="h4" fontWeight="bold">
+      <Typography variant="h4" fontWeight="bold">
         My Fixed NFTs
       </Typography>
       {fixedNFTs.map((fixedNFT) => (
         <Card
           key={fixedNFT.tokenId}
-          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff" }}
+          sx={{ mt: 2, mb: 2, backgroundColor: "#e6d7ff", cursor: "pointer" }}
+          onClick={() => {
+            window.open(
+              `https://sepolia.etherscan.io/nft/${fixedNFTContract.address}/${fixedNFT.tokenId}`,
+              "_blank"
+            );
+          }}
         >
           <CardContent>
+            <Typography>Token ID: {fixedNFT.tokenId}</Typography>
             <Typography>Value: {fixedNFT.value}</Typography>
             <Typography>Claimed: {fixedNFT.claim}</Typography>
             <Typography sx={{ marginBottom: 2 }}>
@@ -135,7 +127,7 @@ function FixedNFTs({
               variant="contained"
               color="primary"
               onClick={() => redeemFixed(fixedNFT.tokenId)}
-              disabled={isLoading || fixedNFT.interest === "0.0"}
+              disabled={isLoading}
             >
               Redeem Interest
             </Button>
