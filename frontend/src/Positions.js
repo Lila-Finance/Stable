@@ -25,6 +25,7 @@ const theme = createTheme({
   const [developerMode, setDeveloperMode] = useState(false);
   const { address } = useAccount();
   const Positions = ({ positions }) => {
+    <h1>Your Positions</h1>
     return (
       <Container>
         {positions.length > 0 && (
