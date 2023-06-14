@@ -246,18 +246,19 @@ const PositionCard = ({ status, address, numPools, poolNum }) => {
           </Alert>
         )}
         <Button
-          variant="contained"
-          fullWidth={true}
-          style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
-          sx={{ marginTop:'10px', backgroundColor: '#99CEFF', color: '#FFFFFF' }}
-          // have claim interest function here
-          // is clickable attribute
-          onClick={null}
-        >
-          {
-            "Insert NFT address here"
-          };
-        </Button>
+        variant="contained"
+        fullWidth={true}
+        style={{ fontSize: '0.7rem', flex: 1, padding: '10px 20px' }} 
+        sx={{ marginTop: '10px', backgroundColor: '#99CEFF', color: '#FFFFFF' }}
+        onClick={() => {
+          window.open(
+            `https://sepolia.etherscan.io/nft/${fixedNFTContract.address}/${fixedNFT.tokenId}`,
+            "_blank"
+          );
+        }}
+      >
+        View Position: ${fixedNFTContract.address}
+      </Button>
 
         <Divider sx={{ bgcolor: '#FBFBEC', marginTop: '10px', marginBottom: '10px' }} />
 
