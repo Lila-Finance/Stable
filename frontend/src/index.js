@@ -6,28 +6,32 @@ import App from "./AltApp";
 // react component. All of the logic is contained in it.
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
-import { mainnet, polygon, optimism, arbitrum, sepolia } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
+import { sepolia } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
+import "./polyfills";
 
-const { chains, provider } = configureChains([sepolia], [publicProvider()]);
+const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [sepolia],
+  [publicProvider()]
+);
 const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
-  projectId: "YOUR_PROJECT_ID",
+  appName: "Lila Finance",
+  projectId: "c0027ae711b4888e46a4a700b7274a56",
   chains,
 });
-const wagmiClient = createClient({
+const wagmiConfig = createConfig({
   autoConnect: true,
   connectors,
-  provider,
+  publicClient,
+  webSocketPublicClient,
 });
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <React.StrictMode>
-    <WagmiConfig client={wagmiClient}>
+    <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains} modalSize="compact">
         <App />
       </RainbowKitProvider>
