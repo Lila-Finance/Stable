@@ -2,11 +2,83 @@ import React, { useState , useEffect } from "react";
 import { Container, Grid, CircularProgress, Card, CardContent, Typography } from "@mui/material";
 import NavBar from "./components/NavBar";
 import PositionCard from "./components/PositionCard"
+import AltCard from "./components/AltCard"
+import PoolCard from "./components/PoolCard"
+import DemoPositionCard from "./components/DemoPositionCard"
 import "./App.css";
 import { useAccount } from "wagmi";
 import FixedNFTs from "./components/FixedNFTs";
 import VariableNFTs from "./components/VariableNFTs"
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { formatEther } from "viem"
+
+const testNFTs = [
+  {
+    status: 'done',
+    address: '0x987654321',
+    numPools: 2,
+    poolNum: 0,
+  },
+  {
+    status: 'done',
+    address: '0x123456789',
+    numPools: 3,
+    poolNum: 1,
+  },
+  
+  {
+    status: 'done',
+    address: '0xabcdef123',
+    numPools: 5,
+    poolNum: 2,
+  },
+];
+
+const getNFTs = async ({
+  address,
+  rate,
+  poolContract,
+  variableNFTContract,
+  fixedNFTContract,
+  refreshKey,
+}) => {
+  try {
+    const variableNFTCount = await variableNFTContract.balanceOf(address);
+    const fixedNFTCount = await fixedNFTContract.balanceOf(address);
+    const myNFTs = [];
+
+    for (let i = 0; i < variableNFTCount; i++) {
+      const nftId = await variableNFTContract.tokenOfOwnerByIndex(address, i);
+      const depositData = await variableNFTContract.getDepositData(nftId);
+      const nftIdNumber = nftId.toNumber();
+      const interest = await poolContract.calculateInterestVariable(nftIdNumber);
+      myNFTs.push({
+        tokenId: nftIdNumber,
+        value: formatEther(depositData.amount),
+        interest: formatEther(interest),
+        claim: formatEther(depositData.claim),
+      });
+    }
+
+    for (let i = 0; i < fixedNFTCount; i++) {
+      const nftId = await fixedNFTContract.tokenOfOwnerByIndex(address, i);
+      const depositData = await fixedNFTContract.getDepositData(nftId);
+      const nftIdNumber = nftId.toNumber();
+      const interest = await poolContract.calculateInterestFixed(nftIdNumber);
+      myNFTs.push({
+        tokenId: nftIdNumber,
+        value: formatEther(depositData.amount),
+        interest: formatEther(interest),
+        claim: formatEther(depositData.claim),
+      });
+    }
+
+    return myNFTs;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+};
 
 const Positions = ({ address, rate, poolContract, variableNFTContract, fixedNFTContract, refreshKey }) => {
   const [NFTs, setNFTs] = useState([]);
@@ -18,32 +90,11 @@ const Positions = ({ address, rate, poolContract, variableNFTContract, fixedNFTC
   const [fixedSupply, setFixedSupply] = useState(0);
   const [variableSupply, setVariableSupply] = useState(0);
 
-  const testNFTs = [
-    {
-      status: 'expired',
-      address: '0x123456789',
-      numPools: 3,
-      poolNum: 1,
-    },
-    {
-      status: 'inprogress',
-      address: '0x987654321',
-      numPools: 2,
-      poolNum: 0,
-    },
-    {
-      status: 'done',
-      address: '0xabcdef123',
-      numPools: 5,
-      poolNum: 2,
-    },
-  ];
-
   useEffect(() => {
     async function fetchNFTs() {
       if (variableNFTContract && fixedNFTContract) {
-        // Real NFTs are available
-        const realNFTs = /* Fetch real NFTs using the contracts */
+        // Fetch real NFTs using the contracts
+        const realNFTs = await /* Fetch real NFTs using the contracts */
         setNFTs(realNFTs);
         setLoading(false);
       } else {
@@ -56,6 +107,9 @@ const Positions = ({ address, rate, poolContract, variableNFTContract, fixedNFTC
     if (address && variableNFTContract && fixedNFTContract) {
       fetchNFTs();
     }
+
+    setNFTs(testNFTs);
+    setLoading(false);
   }, [address, variableNFTContract, fixedNFTContract]);
 
   useEffect(() => {
@@ -87,15 +141,14 @@ const Positions = ({ address, rate, poolContract, variableNFTContract, fixedNFTC
 
   return (
     <Container>
-      <h1 style={{ position: 'absolute', left: '35px', top: '120px' }}>Your Positions</h1>
-
+      <h1 style={{ position: 'absolute', left: '35px', top: '100px' }}>Your Positions</h1>
       <Grid container spacing={7} justifyContent="center" alignItems="center" mt={4}>
         {isLoading ? (
           <CircularProgress />
         ) : (
-          NFTs.map((NFT, index) => (
+          testNFTs.map((NFT, index) => (
             <Grid item xs={12} md={4} key={index}>
-              <PositionCard
+              <DemoPositionCard
                 status={NFT.status}
                 address={NFT.address}
                 numPools={NFT.numPools}
