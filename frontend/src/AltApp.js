@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -15,6 +15,14 @@ import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useAccount } from "wagmi";
+import poolDeployerAbi from "./abi/PoolDeployer.json";
+import { useContractReads, useContractRead } from "wagmi";
+import addresses from "./addresses/addresses.json";
+
+const poolDeployerContract = {
+  abi: poolDeployerAbi.abi,
+  address: addresses.POOL_DEPLOYER_ADDRESS,
+};
 
 const theme = createTheme({
   palette: {
@@ -34,6 +42,13 @@ function AltApp() {
   const [numPools, setNumPools] = useState(1);
   const [developerMode, setDeveloperMode] = useState(false);
   const { address } = useAccount();
+
+  const { data } = useContractRead({
+    ...poolDeployerContract,
+    functionName: "getPoolLength",
+    args: [],
+  });
+
   const alt = () => (
     <Container>
       <Grid
@@ -44,13 +59,19 @@ function AltApp() {
         mt={4}
       >
         <Grid item xs={12} md={4}>
-          <AltCard status={"expired"} poolNum={0} />
+          <AltCard
+            status={"expired"}
+            poolNum={data ? 0 % parseInt(data) : null}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
-          <AltCard status={"inprogress"} poolNum={1} />
+          <AltCard
+            status={"inprogress"}
+            poolNum={data ? 1 % parseInt(data) : null}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
-          <AltCard status={"done"} poolNum={2} />
+          <AltCard status={"done"} poolNum={data ? 2 % parseInt(data) : null} />
         </Grid>
       </Grid>
     </Container>
