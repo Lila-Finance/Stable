@@ -48,8 +48,8 @@ function NavBar({ onDeveloperModeChange }) {
         sx={{ minHeight: "100px", display: "", alignItems: "flex-end"}}
       >
         <div className="logo-text" style={{ position: 'relative', top: '6px', left: '10px', marginRight: "10px" }}>LILA Finance</div>
-        <Button component={RouterLink} to="/earn" sx={{color: `rgba(76, 76, 81, 1)`}}>Earn</Button>
-        <Button component={RouterLink} to="/positions" sx={{color: `rgba(76, 76, 81, 1)`}}>Positions</Button>
+        <Button component={RouterLink} to="/earn" sx={{color: `rgba(76, 76, 81, 1)`, marginBottom: "-5px" }}>Earn</Button>
+        <Button component={RouterLink} to="/positions" sx={{color: `rgba(76, 76, 81, 1)`, marginBottom: "-5px"}}>Positions</Button>
         <IconButton
           aria-label="more"
           aria-controls="long-menu"
