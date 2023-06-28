@@ -26,6 +26,7 @@ import { poolDeployerContract } from "./Provider";
 import PoolAbi from "../abi/Pool.json";
 import FixedNFTAbi from "../abi/FixedNFT.json";
 import VariableNFTAbi from "../abi/VariableNFT.json";
+import FixedNFTs from "./FixedNFTs";
 
 const poolAbi = PoolAbi.abi;
 const fixedNFTAbi = FixedNFTAbi.abi;
@@ -252,7 +253,7 @@ const PositionCard = ({ status, address, numPools, poolNum }) => {
         sx={{ marginTop: '10px', backgroundColor: '#99CEFF', color: '#FFFFFF' }}
         onClick={() => {
           window.open(
-            `https://sepolia.etherscan.io/nft/${fixedNFTContract.address}/${fixedNFT.tokenId}`,
+            `https://sepolia.etherscan.io/nft/${fixedNFTContract.address}/${fixedNFTContract.tokenId}`,
             "_blank"
           );
         }}

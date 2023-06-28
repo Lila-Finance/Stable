@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import { formatEther } from "viem";
+
 import { sendParams } from "./Provider";
 import {
   Typography,
@@ -41,9 +42,9 @@ function VariableNFTs({
           );
           myVariableNFTs.push({
             tokenId: nftIdNumber,
-            value: ethers.utils.formatEther(depositData["amount"]),
-            interest: ethers.utils.formatEther(interest),
-            claim: ethers.utils.formatEther(depositData["claim"]),
+            value: formatEther(depositData["amount"]),
+            interest: formatEther(interest),
+            claim: formatEther(depositData["claim"]),
           });
         }
 
