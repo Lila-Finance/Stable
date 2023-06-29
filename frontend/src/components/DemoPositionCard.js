@@ -25,7 +25,7 @@ import { useContractReads, useContractRead } from "wagmi";
 import { formatEther } from "viem";
 import addresses from "../addresses/addresses.json";
 
-const DemoPositionCard = ({ status, numPools, poolNum, address }) => {
+const DemoPositionCard = ({ status, numPools, address }) => {
   
   const { data, isError, isLoading } = useContractReads({
     contracts: [
@@ -466,7 +466,7 @@ const DemoPositionCard = ({ status, numPools, poolNum, address }) => {
           }}
         >
           <div style={{ flexGrow: 1, textAlign: "center" }}>
-            DAI (Aave) <strong>{poolNum}</strong>
+            DAI (Aave) <strong></strong>
           </div>
           {redEllipse && (
             <img
